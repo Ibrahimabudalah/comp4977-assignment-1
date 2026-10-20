@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var votingGuide = VotingGuideViewModel()
+
     var body: some View {
         TabView {
             MunicipalitiesView()
@@ -21,7 +23,13 @@ struct ContentView: View {
             .tabItem {
                 Label("Candidates", systemImage: "person.3")
             }
+
+            VotingGuideView()
+                .tabItem {
+                    Label("Voting Guide", systemImage: "bookmark")
+                }
         }
+        .environmentObject(votingGuide)
     }
 }
 

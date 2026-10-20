@@ -5,6 +5,26 @@ import Combine
 @MainActor
 class CandidateViewModel: ObservableObject {
     @Published var candidates: [Candidate] = []
+    @Published var searchText = ""
+    @Published var selectedMunicipality = 0
+    @Published var selectedPosition = 0
+
+    var filteredCandidates: [Candidate] {
+        candidates.filter { candidate in
+            let matchesSearch = searchText.isEmpty ||
+                candidate.name.localizedCaseInsensitiveContains(searchText)
+
+            let matchesMunicipality = selectedMunicipality == 0 ||
+                candidate.municipalityId == selectedMunicipality
+
+            let matchesPosition = selectedPosition == 0 ||
+                candidate.positionId == selectedPosition
+
+            return matchesSearch &&
+                   matchesMunicipality &&
+                   matchesPosition
+        }
+    }
 
     func loadCandidates() {
         candidates = MockData.candidates

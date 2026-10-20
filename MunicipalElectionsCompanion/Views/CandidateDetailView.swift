@@ -3,6 +3,7 @@ import SwiftUI
 
 struct CandidateDetailView: View {
     let candidate: Candidate
+    @EnvironmentObject var votingGuide: VotingGuideViewModel
 
     private var positionName: String {
         MockData.positions.first {
@@ -73,15 +74,24 @@ struct CandidateDetailView: View {
 
                 //voting Guide button
                 Button {
-                    //saving functionality will be added later
+                    if votingGuide.isSaved(candidate) {
+                        votingGuide.removeCandidate(candidate)
+                    } else {
+                        votingGuide.addCandidate(candidate)
+                    }
                 } label: {
-                    Label("Add to Voting Guide",
-                          systemImage: "bookmark")
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                    Label(
+                        votingGuide.isSaved(candidate)
+                            ? "Remove from Voting Guide"
+                            : "Add to Voting Guide",
+                        systemImage: votingGuide.isSaved(candidate)
+                            ? "bookmark.fill"
+                            : "bookmark"
+                    )
+                    .frame(maxWidth: .infinity)
+                    .padding()
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(true)
             }
             .padding()
         }
@@ -93,5 +103,6 @@ struct CandidateDetailView: View {
 #Preview {
     NavigationStack {
         CandidateDetailView(candidate: MockData.candidates[0])
+            .environmentObject(VotingGuideViewModel())
     }
 }
