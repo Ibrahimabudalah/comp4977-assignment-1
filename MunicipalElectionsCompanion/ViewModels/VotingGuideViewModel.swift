@@ -1,4 +1,7 @@
 
+import Foundation
+import Combine
+
 @MainActor
 class VotingGuideViewModel: ObservableObject {
     @Published private(set) var savedCandidates: [Candidate] = []
