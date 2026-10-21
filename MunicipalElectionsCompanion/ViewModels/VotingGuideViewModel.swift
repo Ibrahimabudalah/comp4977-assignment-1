@@ -16,6 +16,10 @@ class VotingGuideViewModel: ObservableObject {
             $0.candidateId == candidate.candidateId
         }
     }
+    
+    func clearVotingGuide() {
+        savedCandidates.removeAll()
+    }
 
     func isSaved(_ candidate: Candidate) -> Bool {
         savedCandidates.contains {

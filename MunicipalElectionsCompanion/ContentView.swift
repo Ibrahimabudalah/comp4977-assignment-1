@@ -8,25 +8,43 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var votingGuide = VotingGuideViewModel()
+    @ObservedObject var authViewModel: AuthViewModel
+    @EnvironmentObject var votingGuide: VotingGuideViewModel
 
     var body: some View {
         TabView {
             MunicipalitiesView()
                 .tabItem {
-                    Label("Municipalities", systemImage: "building.2")
+                    Label(
+                        "Municipalities",
+                        systemImage: "building.2"
+                    )
                 }
 
             NavigationStack {
                 CandidateListView()
             }
             .tabItem {
-                Label("Candidates", systemImage: "person.3")
+                Label(
+                    "Candidates",
+                    systemImage: "person.3"
+                )
             }
 
             VotingGuideView()
                 .tabItem {
-                    Label("Voting Guide", systemImage: "bookmark")
+                    Label(
+                        "Voting Guide",
+                        systemImage: "bookmark"
+                    )
+                }
+
+            ProfileView(viewModel: authViewModel)
+                .tabItem {
+                    Label(
+                        "Profile",
+                        systemImage: "person.crop.circle"
+                    )
                 }
         }
         .environmentObject(votingGuide)
@@ -34,5 +52,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(authViewModel: AuthViewModel())
+        .environmentObject(VotingGuideViewModel())
 }
