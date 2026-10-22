@@ -78,15 +78,15 @@ public static class DbInitializer
 
         //seed positions
         var pittMayor = NewPosition(pittMeadows, "Mayor", 1);
-        var pittCouncil = NewPosition(pittMeadows, "Councilor", 6);
+        var pittCouncil = NewPosition(pittMeadows, "Councillor", 6);
         var pittTrustee = NewPosition(pittMeadows, "School Trustee", 2);
 
         var mapleMayor = NewPosition(mapleRidge, "Mayor", 1);
-        var mapleCouncil = NewPosition(mapleRidge, "Councilor", 6);
+        var mapleCouncil = NewPosition(mapleRidge, "Councillor", 6);
         var mapleTrustee = NewPosition(mapleRidge, "School Trustee", 5);
 
         var burnabyMayor = NewPosition(burnaby, "Mayor", 1);
-        var burnabyCouncil = NewPosition(burnaby, "Councilor", 8);
+        var burnabyCouncil = NewPosition(burnaby, "Councillor", 8);
         var burnabyTrustee = NewPosition(burnaby, "School Trustee", 7);
 
         //seed sample candidates
