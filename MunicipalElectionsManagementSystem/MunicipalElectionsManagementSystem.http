@@ -1,0 +1,87 @@
+# Manual tests for the mobile app API.
+# Run the API first: dotnet run --launch-profile http
+# In Cursor/VS Code, install the "REST Client" extension and click "Send Request" above each request.
+# Send "register" once, then "login"; the protected requests reuse the login token.
+
+@host = http://localhost:5194
+@json = application/json
+
+### register: 201 { name, email }; sending it again gives 400 errors.email
+POST {{host}}/api/auth/register
+Content-Type: {{json}}
+
+{ "name": "Jane Doe", "email": "jane@example.com", "password": "Passw0rd!" }
+
+### register with a weak password: 400 errors.password (Identity's rules: upper, lower, digit, symbol)
+POST {{host}}/api/auth/register
+Content-Type: {{json}}
+
+{ "name": "Weak", "email": "weak@example.com", "password": "password" }
+
+### register with a bad email and a short password: 400 errors.email, errors.password
+POST {{host}}/api/auth/register
+Content-Type: {{json}}
+
+{ "name": "Bad", "email": "not-an-email", "password": "short" }
+
+### login: 200 { token }
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: {{json}}
+
+{ "email": "jane@example.com", "password": "Passw0rd!" }
+
+### login with a wrong password: 401; the 5th failure in a row gives 423 (locked for 5 minutes)
+POST {{host}}/api/auth/login
+Content-Type: {{json}}
+
+{ "email": "jane@example.com", "password": "WrongPassw0rd!" }
+
+### me: 200 { name, email }
+GET {{host}}/api/auth/me
+Authorization: Bearer {{login.response.body.$.token}}
+
+### me with no token: 401, no body
+GET {{host}}/api/auth/me
+
+
+### municipalities: positions is null in the list
+GET {{host}}/api/municipalities
+
+### one municipality, with its positions: 200; unknown id gives 404
+GET {{host}}/api/municipalities/1
+
+### positions, optionally filtered by municipality
+GET {{host}}/api/positions?municipalityId=1
+
+### one position: 200; unknown id gives 404
+GET {{host}}/api/positions/1
+
+
+### candidates, optionally filtered by municipality and position
+GET {{host}}/api/candidates?municipalityId=1&positionId=2
+
+### one candidate: 200; unknown id gives 404
+GET {{host}}/api/candidates/1
+
+### search by name, ignoring case: no match gives []
+GET {{host}}/api/candidates/search?name=alex
+
+
+### my voting guide, newest first
+GET {{host}}/api/savedcandidates
+Authorization: Bearer {{login.response.body.$.token}}
+
+### my voting guide with no token: 401
+GET {{host}}/api/savedcandidates
+
+### save a candidate: 201 entry; sending it again gives 409; unknown candidate gives 404
+POST {{host}}/api/savedcandidates
+Authorization: Bearer {{login.response.body.$.token}}
+Content-Type: {{json}}
+
+{ "candidateId": 1 }
+
+### remove a saved entry by savedCandidateId (from the GET above): 204; again, or another user's entry, gives 404
+DELETE {{host}}/api/savedcandidates/1
+Authorization: Bearer {{login.response.body.$.token}}
