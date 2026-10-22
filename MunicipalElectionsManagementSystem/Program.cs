@@ -1,15 +1,21 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using MunicipalElectionsManagementSystem.Data;
 using MunicipalElectionsManagementSystem.Models;
 using MunicipalElectionsManagementSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+//camelCase keys in API validation errors; ModelState lookups are case-insensitive, so MVC forms are unaffected
+builder.Services.AddControllersWithViews(options =>
+    options.ModelMetadataDetailsProviders.Add(
+        new SystemTextJsonValidationMetadataProvider()));
 
 //SQLite db connection
 var connectionString = builder.Configuration
@@ -46,6 +52,28 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+
+//JWT bearer for the mobile app API; the Identity cookie stays the default scheme for MVC
+builder.Services.AddAuthentication()
+    .AddJwtBearer(options =>
+    {
+        //keep claim names as issued (sub, email, name)
+        options.MapInboundClaims = false;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = JwtTokenService.GetSigningKey(builder.Configuration),
+            ValidateLifetime = true,
+            NameClaimType = JwtRegisteredClaimNames.Name
+        };
+    });
+
+builder.Services.AddScoped<JwtTokenService>();
 
 //re-check sign-in cookies against the database every minute,
 //so role changes and deleted users take effect quickly
