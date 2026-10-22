@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MunicipalElectionsManagementSystem.Models;
 
 namespace MunicipalElectionsManagementSystem.Dtos;
@@ -32,6 +33,20 @@ public record CandidateDto(
     string PositionName,
     int MunicipalityId,
     string MunicipalityName);
+
+//userId and candidateId match the partner's flat Swift model; candidate saves a request per entry
+public record SavedCandidateDto(
+    int SavedCandidateId,
+    string UserId,
+    int CandidateId,
+    DateTimeOffset DateSaved,
+    CandidateDto Candidate);
+
+public record SaveCandidateRequest
+{
+    [Required]
+    public int? CandidateId { get; init; }
+}
 
 //maps entities loaded with their navigations; never return entities from the API
 public static class ElectionDtoMapping
@@ -76,6 +91,14 @@ public static class ElectionDtoMapping
         c.Position.Name,
         c.Position.MunicipalityId,
         c.Position.Municipality.Name);
+
+    //SQLite returns DateTimeKind.Unspecified, which would otherwise take the server's local offset
+    public static SavedCandidateDto ToDto(this SavedCandidate s, HttpRequest request) => new(
+        s.SavedCandidateId,
+        s.UserId,
+        s.CandidateId,
+        new DateTimeOffset(DateTime.SpecifyKind(s.DateSaved, DateTimeKind.Utc)),
+        s.Candidate.ToDto(request));
 
     //the contract sends null, never "", so Swift optionals decode cleanly
     private static string? NullIfEmpty(string? value) =>
