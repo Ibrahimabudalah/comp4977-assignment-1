@@ -1,0 +1,36 @@
+@model MunicipalElectionsManagementSystem.Models.Position
+
+@{
+    ViewData["Title"] = "Delete Position";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Delete Position</h2>
+
+    <div class="alert alert-warning">
+        Are you sure you want to delete
+        <strong>@Model.Name</strong>?
+    </div>
+
+    <p><strong>Municipality:</strong> @Model.Municipality?.Name</p>
+    <p><strong>Seats Available:</strong> @Model.SeatsAvailable</p>
+
+    @if (Model.Candidates.Any())
+    {
+        <div class="alert alert-danger">
+            This position has candidates assigned to it.
+            Remove those candidates before deleting the position.
+        </div>
+    }
+
+    <form asp-action="Delete" asp-route-id="@Model.PositionId" method="post">
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="btn btn-danger" disabled="@(Model.Candidates.Any())">
+            Confirm Delete
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

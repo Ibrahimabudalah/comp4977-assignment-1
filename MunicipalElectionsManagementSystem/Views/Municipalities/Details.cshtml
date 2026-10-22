@@ -1,0 +1,61 @@
+@model MunicipalElectionsManagementSystem.Models.Municipality
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="d-flex flex-column flex-md-row align-items-md-center gap-4 mb-4">
+    <img src="@Url.Content(string.IsNullOrEmpty(Model.LogoFileName)
+                  ? "~/images/placeholder.svg"
+                  : "~/uploads/municipalities/" + Model.LogoFileName)"
+         alt="@Model.Name logo" width="140" height="140" style="object-fit: contain;" />
+    <div>
+        <h2>@Model.Name</h2>
+        <p class="text-muted mb-1">
+            @Model.Province &middot; Election @Model.ElectionDate.ToString("MMMM d, yyyy")
+        </p>
+        <p class="mb-0">@Model.Description</p>
+    </div>
+</div>
+
+<h4 class="mb-3">Positions</h4>
+
+@if (!Model.Positions.Any())
+{
+    <p class="text-muted">No positions have been added yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle table-stack">
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Seats available</th>
+                    <th>Candidates</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var position in Model.Positions.OrderBy(p => p.Name))
+                {
+                    <tr>
+                        <td data-label="Position">@position.Name</td>
+                        <td data-label="Seats available">@position.SeatsAvailable</td>
+                        <td data-label="Candidates">@position.Candidates.Count</td>
+                        <td class="text-end actions">
+                            <a asp-controller="Candidates" asp-action="Index"
+                               asp-route-municipalityId="@Model.MunicipalityId"
+                               asp-route-position="@position.Name"
+                               class="btn btn-sm btn-outline-primary">
+                                View candidates
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a asp-action="Index" class="btn btn-link px-0">&larr; All municipalities</a>

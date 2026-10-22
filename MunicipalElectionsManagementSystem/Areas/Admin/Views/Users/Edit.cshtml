@@ -1,0 +1,21 @@
+@model MunicipalElectionsManagementSystem.ViewModels.UserFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Administrator";
+}
+
+<div class="container mt-4">
+    <h2>Edit Administrator</h2>
+    <p class="text-muted">Change the username, admin group, or password.</p>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <partial name="_UserForm" model="Model" />
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

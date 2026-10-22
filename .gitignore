@@ -4,3 +4,11 @@ build/
 DerivedData/
 *.xcuserstate
 xcuserdata/
+ref/
+bin/
+obj/
+publish/
+*.db
+*.db-shm
+*.db-wal
+appsettings.Development.json

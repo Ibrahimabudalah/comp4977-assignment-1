@@ -1,0 +1,83 @@
+@model IEnumerable<MunicipalElectionsManagementSystem.Models.Candidate>
+
+@{
+    ViewData["Title"] = "Candidates";
+}
+
+<h2 class="mb-4">Candidates</h2>
+
+<partial name="_StatusMessages" />
+
+<form asp-action="Index" method="get" class="row g-2 mb-4">
+    <div class="col-12 col-md-6 col-lg-4">
+        <label for="search" class="visually-hidden">Search by name</label>
+        <input id="search" name="search" value="@ViewData["Search"]"
+               class="form-control" placeholder="Search by name" />
+    </div>
+    <div class="col-6 col-md-3">
+        <label for="municipalityId" class="visually-hidden">Municipality</label>
+        <select id="municipalityId" name="municipalityId" class="form-select"
+                asp-items='(SelectList)ViewData["Municipalities"]!'>
+            <option value="">All municipalities</option>
+        </select>
+    </div>
+    <div class="col-6 col-md-3">
+        <label for="position" class="visually-hidden">Position</label>
+        <select id="position" name="position" class="form-select"
+                asp-items='(SelectList)ViewData["Positions"]!'>
+            <option value="">All positions</option>
+        </select>
+    </div>
+    <div class="col-12 col-lg-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1">Search</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No candidates match your search.</p>
+}
+else
+{
+    <form id="compare-form" asp-action="Compare" method="get"
+          class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <button type="submit" class="btn btn-outline-primary">Compare selected</button>
+        <span class="text-muted small">Tick 2 or 3 candidates to compare them side by side.</span>
+    </form>
+}
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+    @foreach (var candidate in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="@Url.Content(string.IsNullOrEmpty(candidate.PhotoFileName)
+                              ? "~/images/placeholder.svg"
+                              : "~/uploads/candidates/" + candidate.PhotoFileName)"
+                     alt="@candidate.Name" class="card-img-top"
+                     style="height: 220px; object-fit: cover;" />
+                <div class="card-body">
+                    <h5 class="card-title mb-1">@candidate.Name</h5>
+                    <p class="card-text text-muted">
+                        @candidate.Position.Name &middot; @candidate.Position.Municipality.Name
+                    </p>
+                    <input class="btn-check" type="checkbox" form="compare-form" autocomplete="off"
+                           name="ids" value="@candidate.CandidateId" id="compare-@candidate.CandidateId" />
+                    <label class="btn btn-outline-secondary btn-sm" for="compare-@candidate.CandidateId">Compare</label>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3 d-flex flex-wrap gap-2">
+                    <a asp-action="Details" asp-route-id="@candidate.CandidateId"
+                       class="btn btn-outline-primary btn-sm">
+                        View profile
+                    </a>
+                    <form asp-controller="VotingGuide" asp-action="Add" method="post">
+                        <input type="hidden" name="id" value="@candidate.CandidateId" />
+                        <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                        <button type="submit" class="btn btn-success btn-sm">Add to my guide</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

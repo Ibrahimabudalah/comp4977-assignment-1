@@ -1,0 +1,158 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+/* Colour scheme */
+:root {
+  --mems-navy: #1f3a5f;
+  --mems-navy-dark: #162a45;
+}
+
+.bg-mems {
+  background-color: var(--mems-navy);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--mems-navy);
+  --bs-btn-border-color: var(--mems-navy);
+  --bs-btn-hover-bg: var(--mems-navy-dark);
+  --bs-btn-hover-border-color: var(--mems-navy-dark);
+  --bs-btn-active-bg: var(--mems-navy-dark);
+  --bs-btn-active-border-color: var(--mems-navy-dark);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--mems-navy);
+  --bs-btn-border-color: var(--mems-navy);
+  --bs-btn-hover-bg: var(--mems-navy);
+  --bs-btn-hover-border-color: var(--mems-navy);
+  --bs-btn-active-bg: var(--mems-navy-dark);
+  --bs-btn-active-border-color: var(--mems-navy-dark);
+}
+
+/* Dark mode: navy is too dark against a dark page, use a lighter blue for outlines */
+[data-bs-theme="dark"] .btn-outline-primary {
+  --bs-btn-color: #8fb3e0;
+  --bs-btn-border-color: #8fb3e0;
+  --bs-btn-hover-color: #fff;
+}
+
+[data-bs-theme="dark"] .bg-mems {
+  background-color: var(--mems-navy-dark);
+}
+
+.navbar-dark .nav-link.active {
+  font-weight: 600;
+  border-bottom: 2px solid #fff;
+}
+
+.card {
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Phones: 44px touch targets, text centred in the taller button */
+@media (max-width: 767.98px) {
+  .btn,
+  .navbar-toggler {
+    min-height: 44px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Phones: show each table row as a labelled card instead of scrolling sideways */
+@media (max-width: 575.98px) {
+  .table-stack thead {
+    display: none;
+  }
+
+  .table-stack tr {
+    display: block;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+  }
+
+  .table-stack td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    text-align: end;
+    border: 0;
+  }
+
+  .table-stack td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: start;
+  }
+
+  .table-stack td.actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .table-stack td.actions::before {
+    content: none;
+  }
+}
+
+/* Printable voting guide */
+.print-only {
+  display: none;
+}
+
+@media print {
+  header, footer, .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  body {
+    margin-bottom: 0;
+  }
+
+  .guide-section {
+    break-inside: avoid;
+  }
+}

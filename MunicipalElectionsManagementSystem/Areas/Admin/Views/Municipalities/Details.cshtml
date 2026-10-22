@@ -1,0 +1,48 @@
+@model MunicipalElectionsManagementSystem.Models.Municipality
+
+@{
+    ViewData["Title"] = "Municipality Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>@Model.Name</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Municipality Information</h5>
+
+            @if (!string.IsNullOrEmpty(Model.LogoFileName))
+            {
+                <div class="mb-3">
+                    <img src="@Url.Content("~/uploads/municipalities/" + Model.LogoFileName)" alt="@Model.Name logo"
+                         style="max-width: 180px; max-height: 180px;" class="img-thumbnail" />
+                </div>
+            }
+
+            <p><strong>Province:</strong> @Model.Province</p>
+            <p>
+                <strong>Election Date:</strong>
+                @Model.ElectionDate.ToString("yyyy-MM-dd")
+            </p>
+            <p>
+                <strong>Description:</strong>
+                @(Model.Description ?? "No description provided.")
+            </p>
+            <p>
+                <strong>Positions:</strong>
+                @Model.Positions.Count
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.MunicipalityId" class="btn btn-primary">
+            Edit
+        </a>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Back to List
+        </a>
+    </div>
+</div>

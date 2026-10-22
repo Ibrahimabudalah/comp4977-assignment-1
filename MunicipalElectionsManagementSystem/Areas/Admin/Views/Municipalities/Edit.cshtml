@@ -1,0 +1,75 @@
+@model MunicipalElectionsManagementSystem.ViewModels.MunicipalityFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Municipality";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Edit Municipality</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Province" class="form-label"></label>
+            <input asp-for="Province" class="form-control" />
+            <span asp-validation-for="Province" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ElectionDate" class="form-label"></label>
+            <input asp-for="ElectionDate" type="date" class="form-control" />
+            <span asp-validation-for="ElectionDate" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ExistingLogoFileName))
+        {
+            <div class="mb-3">
+                <label class="form-label">Current Logo</label>
+                <div>
+                    <img src="@Url.Content("~/uploads/municipalities/" + Model.ExistingLogoFileName)"
+                         alt="Current municipality logo" style="max-width: 150px; max-height: 150px;"
+                         class="img-thumbnail" />
+                </div>
+            </div>
+        }
+
+        <div class="mb-3">
+            <label asp-for="Logo" class="form-label">
+                Replace Logo
+            </label>
+            <input asp-for="Logo" type="file" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+            <span asp-validation-for="Logo" class="text-danger"></span>
+            <div class="form-text">
+                Leave empty to keep the current logo.
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Save Changes
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

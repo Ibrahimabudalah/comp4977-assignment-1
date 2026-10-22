@@ -1,0 +1,45 @@
+@model MunicipalElectionsManagementSystem.ViewModels.PositionFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Position";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Edit Position</h2>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">Position Name</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="SeatsAvailable" class="form-label"></label>
+            <input asp-for="SeatsAvailable" type="number" min="1" max="100" class="form-control" />
+            <span asp-validation-for="SeatsAvailable" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="MunicipalityId" class="form-label">
+                Municipality
+            </label>
+            <select asp-for="MunicipalityId" asp-items="ViewBag.Municipalities" class="form-select">
+                <option value="">Select Municipality</option>
+            </select>
+            <span asp-validation-for="MunicipalityId" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

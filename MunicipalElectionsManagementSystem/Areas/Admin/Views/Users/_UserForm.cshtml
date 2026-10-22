@@ -1,0 +1,37 @@
+@model MunicipalElectionsManagementSystem.ViewModels.UserFormViewModel
+
+@{
+    var isEdit = Model.Id != null;
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="mb-3">
+    <label asp-for="UserName" class="form-label">Username</label>
+    <input asp-for="UserName" class="form-control" placeholder="e.g. mr-admin" autocomplete="off" />
+    <span asp-validation-for="UserName" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="MunicipalityId" class="form-label">Admin group</label>
+    <select asp-for="MunicipalityId" asp-items="ViewBag.Municipalities" class="form-select">
+        <option value="">Super Admin (all municipalities)</option>
+    </select>
+    <div class="form-text">Municipality admins can manage positions and candidates for that municipality only.</div>
+    <span asp-validation-for="MunicipalityId" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Password" class="form-label">
+        @(isEdit ? "New password (leave blank to keep the current one)" : "Password")
+    </label>
+    <input asp-for="Password" class="form-control" autocomplete="new-password" />
+    <div class="form-text">At least 8 characters with upper case, lower case, a digit, and a symbol.</div>
+    <span asp-validation-for="Password" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="ConfirmPassword" class="form-label">Confirm password</label>
+    <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+</div>

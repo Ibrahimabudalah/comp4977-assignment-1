@@ -1,0 +1,27 @@
+@model MunicipalElectionsManagementSystem.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Delete Administrator";
+    var roles = (IList<string>)ViewBag.Roles;
+}
+
+<div class="container mt-4">
+    <h2>Delete Administrator</h2>
+    <p class="text-danger">This permanently deletes the account. It cannot be undone.</p>
+
+    <dl class="row">
+        <dt class="col-sm-3">Username</dt>
+        <dd class="col-sm-9">@Model.UserName</dd>
+
+        <dt class="col-sm-3">Admin group</dt>
+        <dd class="col-sm-9">@(roles.Count == 0 ? "None" : string.Join(", ", roles))</dd>
+
+        <dt class="col-sm-3">Municipality</dt>
+        <dd class="col-sm-9">@(Model.Municipality?.Name ?? "All")</dd>
+    </dl>
+
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

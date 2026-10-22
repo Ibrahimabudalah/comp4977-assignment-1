@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="py-5 text-center">
+    <h1 class="display-5 fw-bold">Municipal Elections 2026</h1>
+    <p class="lead text-muted mb-4">
+        Learn about the candidates in your municipality and build a voting guide to take with you.
+    </p>
+
+    <form asp-controller="Candidates" asp-action="Index" method="get"
+          class="d-flex justify-content-center gap-2 mb-4 mx-auto" style="max-width: 480px;">
+        <label for="search" class="visually-hidden">Search candidates by name</label>
+        <input id="search" name="search" class="form-control" placeholder="Search candidates by name" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <a asp-controller="Municipalities" asp-action="Index" class="btn btn-outline-primary me-2">
+        Browse municipalities
+    </a>
+    <a asp-controller="Candidates" asp-action="Index" class="btn btn-outline-primary">
+        Browse candidates
+    </a>
+</div>

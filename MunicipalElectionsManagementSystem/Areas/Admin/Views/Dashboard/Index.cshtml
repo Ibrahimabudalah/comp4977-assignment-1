@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Administration Dashboard</h2>
+
+    <p class="text-muted">
+        Welcome, @User.Identity?.Name
+    </p>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5>Municipalities</h5>
+                    <h2 class="text-primary">
+                        @ViewBag.MunicipalityCount
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5>Positions</h5>
+                    <h2 class="text-primary">
+                        @ViewBag.PositionCount
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5>Candidates</h5>
+                    <h2 class="text-primary">
+                        @ViewBag.CandidateCount
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a asp-area="Admin" asp-controller="Positions" asp-action="Index" class="btn btn-primary">
+                Manage Positions
+            </a>
+        </div>
+
+        @if (User.IsInRole("Super Admin"))
+        {
+            <div class="mt-4">
+                <a asp-area="Admin" asp-controller="Municipalities" asp-action="Index" class="btn btn-primary">
+                    Manage Municipalities
+                </a>
+                <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="btn btn-primary ms-2">
+                    Manage Administrators
+                </a>
+            </div>
+        }
+
+        <div class="mt-3">
+            <a asp-area="Admin" asp-controller="Candidates" asp-action="Index" class="btn btn-primary">
+                Manage Candidates
+            </a>
+        </div>
+
+    </div>
+
+</div>

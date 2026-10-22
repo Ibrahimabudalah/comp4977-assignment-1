@@ -1,0 +1,72 @@
+@model List<MunicipalElectionsManagementSystem.Models.Candidate>
+
+@{
+    ViewData["Title"] = "Compare Candidates";
+}
+
+<h2 class="mb-4">Compare Candidates</h2>
+
+<partial name="_StatusMessages" />
+
+<div class="row row-cols-1 row-cols-md-@Model.Count g-4 mb-4">
+    @foreach (var candidate in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="@Url.Content(string.IsNullOrEmpty(candidate.PhotoFileName)
+                              ? "~/images/placeholder.svg"
+                              : "~/uploads/candidates/" + candidate.PhotoFileName)"
+                     alt="@candidate.Name" class="card-img-top"
+                     style="height: 220px; object-fit: cover;" />
+                <div class="card-body">
+                    <h5 class="card-title">@candidate.Name</h5>
+                    <dl class="mb-0">
+                        <dt>Position</dt>
+                        <dd>@candidate.Position.Name</dd>
+                        <dt>Municipality</dt>
+                        <dd>@candidate.Position.Municipality.Name</dd>
+                        <dt>Election date</dt>
+                        <dd>@candidate.Position.Municipality.ElectionDate.ToString("MMMM d, yyyy")</dd>
+                        <dt>Biography</dt>
+                        <dd style="white-space: pre-line;">@candidate.Profile</dd>
+                        <dt>Website</dt>
+                        <dd>
+                            @if (string.IsNullOrEmpty(candidate.Website))
+                            {
+                                <span class="text-muted">Not provided</span>
+                            }
+                            else
+                            {
+                                <a href="@candidate.Website" target="_blank" rel="noopener noreferrer">@candidate.Website</a>
+                            }
+                        </dd>
+                        <dt>Email</dt>
+                        <dd>
+                            @if (string.IsNullOrEmpty(candidate.Email))
+                            {
+                                <span class="text-muted">Not provided</span>
+                            }
+                            else
+                            {
+                                <a href="mailto:@candidate.Email">@candidate.Email</a>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3 d-flex flex-wrap gap-2">
+                    <a asp-action="Details" asp-route-id="@candidate.CandidateId"
+                       class="btn btn-outline-primary btn-sm">
+                        View profile
+                    </a>
+                    <form asp-controller="VotingGuide" asp-action="Add" method="post">
+                        <input type="hidden" name="id" value="@candidate.CandidateId" />
+                        <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                        <button type="submit" class="btn btn-success btn-sm">Add to my guide</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<a asp-action="Index" class="btn btn-link px-0">&larr; All candidates</a>

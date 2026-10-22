@@ -1,0 +1,66 @@
+@model MunicipalElectionsManagementSystem.ViewModels.MunicipalityFormViewModel
+
+@{
+    ViewData["Title"] = "Add Municipality";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Add Municipality</h2>
+    <p class="text-muted">Enter the municipality information below.</p>
+
+    <form asp-area="Admin" asp-controller="Municipalities" asp-action="Create" method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Province" class="form-label"></label>
+            <input asp-for="Province" class="form-control" />
+            <span asp-validation-for="Province" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ElectionDate" class="form-label"></label>
+            <input asp-for="ElectionDate" type="date" class="form-control" />
+            <span asp-validation-for="ElectionDate" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Logo" class="form-label">
+                Municipality Logo
+            </label>
+            <input asp-for="Logo" type="file" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+            <span asp-validation-for="Logo" class="text-danger"></span>
+            <div class="form-text">
+                Optional. JPG, PNG, or WebP, maximum 2 MB.
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Create Municipality
+        </button>
+
+        <a asp-area="Admin" asp-controller="Municipalities" asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

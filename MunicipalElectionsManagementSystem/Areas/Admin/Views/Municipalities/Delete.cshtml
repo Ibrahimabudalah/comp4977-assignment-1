@@ -1,0 +1,38 @@
+@model MunicipalElectionsManagementSystem.Models.Municipality
+
+@{
+    ViewData["Title"] = "Delete Municipality";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Delete Municipality</h2>
+
+    <div class="alert alert-warning">
+        Are you sure you want to delete
+        <strong>@Model.Name</strong>?
+    </div>
+
+    @if (Model.Positions.Any())
+    {
+        <div class="alert alert-danger">
+            This municipality has @Model.Positions.Count
+            position(s). Remove its positions before deleting it.
+        </div>
+    }
+
+    <p><strong>Province:</strong> @Model.Province</p>
+
+    <form asp-action="Delete" asp-route-id="@Model.MunicipalityId" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="btn btn-danger" disabled="@(Model.Positions.Any())">
+            Confirm Delete
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>

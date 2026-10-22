@@ -1,0 +1,80 @@
+@model IEnumerable<MunicipalElectionsManagementSystem.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Manage Administrators";
+    var userRoles = (Dictionary<string, IList<string>>)ViewBag.UserRoles;
+    var roleCounts = (Dictionary<string, int>)ViewBag.RoleCounts;
+}
+
+<div class="container mt-4">
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Manage Administrators</h2>
+        <a asp-action="Create" class="btn btn-primary">Add Administrator</a>
+    </div>
+
+    <partial name="_StatusMessages" />
+
+    <div class="table-responsive mb-5">
+        <table class="table table-striped align-middle table-stack">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Admin group</th>
+                    <th>Municipality</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    var roles = userRoles[user.Id];
+
+                    <tr>
+                        <td data-label="Username">@user.UserName</td>
+                        <td data-label="Admin group">
+                            @if (roles.Count == 0)
+                            {
+                                <span class="text-muted">None (cannot log in)</span>
+                            }
+                            else
+                            {
+                                @string.Join(", ", roles)
+                            }
+                        </td>
+                        <td data-label="Municipality">@(user.Municipality?.Name ?? "All")</td>
+                        <td class="actions">
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <h4>Admin Groups</h4>
+    <p class="text-muted">
+        Groups are managed automatically: each municipality gets a "{Name} Admin" group when it is
+        created, and the group is renamed or removed with the municipality.
+    </p>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    <th>Members</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var role in roleCounts)
+                {
+                    <tr>
+                        <td>@role.Key</td>
+                        <td>@role.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

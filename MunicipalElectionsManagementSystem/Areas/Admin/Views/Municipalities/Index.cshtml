@@ -1,0 +1,66 @@
+@model IEnumerable<MunicipalElectionsManagementSystem.Models.Municipality>
+
+@{
+    ViewData["Title"] = "Municipalities";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
+        <h2>Municipalities</h2>
+        <a asp-area="Admin" asp-controller="Municipalities" asp-action="Create" class="btn btn-primary">
+            Add Municipality
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <table class="table table-striped align-middle table-stack">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Province</th>
+                <th>Election Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var municipality in Model)
+            {
+                <tr>
+                    <td data-label="Name">@municipality.Name</td>
+                    <td data-label="Province">@municipality.Province</td>
+                    <td data-label="Election Date">@municipality.ElectionDate.ToString("yyyy-MM-dd")</td>
+                    <td class="actions">
+                        <a asp-area="Admin" asp-controller="Municipalities" asp-action="Details"
+                           asp-route-id="@municipality.MunicipalityId" class="btn btn-sm btn-outline-info">
+                            Details
+                        </a>
+
+                        <a asp-area="Admin" asp-controller="Municipalities" asp-action="Edit"
+                           asp-route-id="@municipality.MunicipalityId" class="btn btn-sm btn-outline-primary">
+                            Edit
+                        </a>
+
+                        <a asp-area="Admin" asp-controller="Municipalities" asp-action="Delete"
+                           asp-route-id="@municipality.MunicipalityId" class="btn btn-sm btn-outline-danger">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

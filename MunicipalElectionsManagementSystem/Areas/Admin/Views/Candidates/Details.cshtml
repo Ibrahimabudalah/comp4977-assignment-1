@@ -1,0 +1,69 @@
+@model MunicipalElectionsManagementSystem.Models.Candidate
+
+@{
+    ViewData["Title"] = "Candidate Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Candidate Details</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+
+            @if (!string.IsNullOrEmpty(Model.PhotoFileName))
+            {
+                <img src="@Url.Content("~/uploads/candidates/" + Model.PhotoFileName)" alt="@Model.Name"
+                     class="img-thumbnail mb-3" style="max-width: 200px; max-height: 200px; object-fit: cover;" />
+            }
+
+            <h4>@Model.Name</h4>
+
+            <p>
+                <strong>Municipality:</strong>
+                @Model.Position?.Municipality?.Name
+            </p>
+
+            <p>
+                <strong>Position:</strong>
+                @Model.Position?.Name
+            </p>
+
+            <p><strong>Profile:</strong></p>
+            <p style="white-space: pre-line;">@Model.Profile</p>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Email))
+            {
+                <p>
+                    <strong>Email:</strong>
+                    <a href="mailto:@Model.Email">@Model.Email</a>
+                </p>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.Website))
+            {
+                <p>
+                    <strong>Website:</strong>
+                    <a href="@Model.Website" target="_blank" rel="noopener noreferrer">
+                        Visit Website
+                    </a>
+                </p>
+            }
+
+            <p>
+                <strong>Date Added:</strong>
+                @Model.DateCreated.ToString("yyyy-MM-dd")
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.CandidateId" class="btn btn-primary">
+            Edit Candidate
+        </a>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Back to List
+        </a>
+    </div>
+</div>

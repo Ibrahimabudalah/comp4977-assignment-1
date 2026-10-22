@@ -1,0 +1,40 @@
+@model IEnumerable<MunicipalElectionsManagementSystem.Models.Municipality>
+
+@{
+    ViewData["Title"] = "Municipalities";
+}
+
+<h2 class="mb-4">Municipalities</h2>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No municipalities yet.</p>
+}
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+    @foreach (var municipality in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="@Url.Content(string.IsNullOrEmpty(municipality.LogoFileName)
+                              ? "~/images/placeholder.svg"
+                              : "~/uploads/municipalities/" + municipality.LogoFileName)"
+                     alt="@municipality.Name logo" class="card-img-top p-3"
+                     style="height: 180px; object-fit: contain;" />
+                <div class="card-body">
+                    <h5 class="card-title">@municipality.Name</h5>
+                    <p class="card-subtitle text-muted mb-2">
+                        @municipality.Province &middot; Election @municipality.ElectionDate.ToString("MMMM d, yyyy")
+                    </p>
+                    <p class="card-text">@municipality.Description</p>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <a asp-action="Details" asp-route-id="@municipality.MunicipalityId"
+                       class="btn btn-primary">
+                        View positions
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

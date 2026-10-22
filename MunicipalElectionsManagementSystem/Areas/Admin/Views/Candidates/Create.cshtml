@@ -1,0 +1,89 @@
+@model MunicipalElectionsManagementSystem.ViewModels.CandidateFormViewModel
+
+@{
+    ViewData["Title"] = "Add Candidate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Add Candidate</h2>
+
+    <p class="text-muted">
+        Enter the candidate's information and select the position
+        they are running for.
+    </p>
+
+    <form asp-area="Admin" asp-controller="Candidates" asp-action="Create" method="post" enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">
+                Candidate Name
+            </label>
+            <input asp-for="Name" class="form-control" placeholder="e.g. John Smith" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Profile" class="form-label">
+                Candidate Profile
+            </label>
+            <textarea asp-for="Profile" class="form-control" rows="5"
+                      placeholder="Enter the candidate's background and information"></textarea>
+            <span asp-validation-for="Profile" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Website" class="form-label">
+                Website (Optional)
+            </label>
+            <input asp-for="Website" type="url" class="form-control" placeholder="https://example.com" />
+            <span asp-validation-for="Website" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">
+                Email (Optional)
+            </label>
+            <input asp-for="Email" type="email" class="form-control" placeholder="candidate@example.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PositionId" class="form-label">
+                Position
+            </label>
+            <select asp-for="PositionId" asp-items="ViewBag.Positions" class="form-select">
+                <option value="">Select Position</option>
+            </select>
+            <span asp-validation-for="PositionId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Photo" class="form-label">
+                Candidate Photo (Optional)
+            </label>
+            <input asp-for="Photo" type="file" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+            <span asp-validation-for="Photo" class="text-danger"></span>
+
+            <div class="form-text">
+                JPG, PNG, or WebP. Maximum file size: 2 MB.
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Create Candidate
+        </button>
+
+        <a asp-area="Admin" asp-controller="Candidates" asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

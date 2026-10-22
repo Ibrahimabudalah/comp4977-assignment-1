@@ -1,0 +1,60 @@
+@model MunicipalElectionsManagementSystem.ViewModels.PositionFormViewModel
+
+@{
+    ViewData["Title"] = "Add Position";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Add Position</h2>
+    <p class="text-muted">
+        Create a new election position for a municipality.
+    </p>
+
+    <form asp-area="Admin" asp-controller="Positions" asp-action="Create" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">
+                Position Name
+            </label>
+            <input asp-for="Name" class="form-control" placeholder="e.g. Mayor" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="SeatsAvailable" class="form-label">
+                Seats Available
+            </label>
+            <input asp-for="SeatsAvailable" type="number" min="1" max="100" class="form-control" />
+            <span asp-validation-for="SeatsAvailable" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="MunicipalityId" class="form-label">
+                Municipality
+            </label>
+
+            <select asp-for="MunicipalityId" asp-items="ViewBag.Municipalities" class="form-select">
+                <option value="">Select Municipality</option>
+            </select>
+
+            <span asp-validation-for="MunicipalityId" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Create Position
+        </button>
+
+        <a asp-area="Admin" asp-controller="Positions" asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

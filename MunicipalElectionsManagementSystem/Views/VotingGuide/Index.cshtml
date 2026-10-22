@@ -1,0 +1,88 @@
+@model IEnumerable<MunicipalElectionsManagementSystem.Models.Candidate>
+
+@{
+    ViewData["Title"] = "My Voting Guide";
+}
+
+<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">My Voting Guide</h2>
+    @if (Model.Any())
+    {
+        <div class="d-flex gap-2 no-print">
+            <a asp-action="Pdf" class="btn btn-outline-primary">Download PDF</a>
+            <button type="button" class="btn btn-primary" onclick="window.print()">
+                Print guide
+            </button>
+        </div>
+    }
+</div>
+
+<p class="print-only">Printed on <span id="print-date">@DateTime.Now.ToString("MMMM d, yyyy")</span></p>
+
+<div class="no-print">
+    <partial name="_StatusMessages" />
+</div>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">
+        Your guide is empty.
+        <a asp-controller="Candidates" asp-action="Index">Browse candidates</a>
+        and add the ones you plan to vote for.
+    </p>
+}
+
+@foreach (var municipality in Model
+    .GroupBy(c => c.Position.MunicipalityId)
+    .Select(g => (Info: g.First().Position.Municipality, Candidates: g))
+    .OrderBy(g => g.Info.Name))
+{
+    <section class="mb-4 guide-section">
+        <h4 class="mb-0">@municipality.Info.Name</h4>
+        <p class="text-muted">Election date: @municipality.Info.ElectionDate.ToString("MMMM d, yyyy")</p>
+
+        <div class="table-responsive">
+            <table class="table align-middle table-stack">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Photo</th>
+                        <th>Candidate</th>
+                        <th>Position</th>
+                        <th class="no-print"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var candidate in municipality.Candidates
+                        .OrderBy(c => c.Position.Name)
+                        .ThenBy(c => c.Name))
+                    {
+                        <tr>
+                            <td data-label="Photo">
+                                <img src="@Url.Content(string.IsNullOrEmpty(candidate.PhotoFileName)
+                                              ? "~/images/placeholder.svg"
+                                              : "~/uploads/candidates/" + candidate.PhotoFileName)"
+                                     alt="@candidate.Name" width="60" height="60"
+                                     class="rounded" style="object-fit: cover;" />
+                            </td>
+                            <td data-label="Candidate">@candidate.Name</td>
+                            <td data-label="Position">@candidate.Position.Name</td>
+                            <td class="text-end no-print actions">
+                                <form asp-action="Remove" asp-route-id="@candidate.CandidateId" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
+
+@section Scripts {
+    <script>
+        //use the visitor's local date rather than the server's
+        document.getElementById("print-date").textContent =
+            new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    </script>
+}

@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+@{
+    var currentArea = ViewContext.RouteData.Values["area"] as string;
+    var currentController = ViewContext.RouteData.Values["controller"] as string;
+
+    string Active(string controller, string? area = null) =>
+        currentController == controller && currentArea == area ? "active" : "";
+}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MEMS</title>
+    <script>
+        //apply the saved theme before the page paints to avoid a flash
+        document.documentElement.setAttribute("data-bs-theme",
+            localStorage.getItem("theme") ??
+            (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+    </script>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MunicipalElectionsManagementSystem.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-mems box-shadow mb-4">
+            <div class="container">
+                <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">
+                    MEMS
+                    <span class="d-none d-lg-inline fw-normal small opacity-75">Municipal Elections 2026</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="mainNav" class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link @Active("Municipalities")" asp-area=""
+                               asp-controller="Municipalities" asp-action="Index">Municipalities</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @Active("Candidates")" asp-area=""
+                               asp-controller="Candidates" asp-action="Index">Candidates</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @Active("VotingGuide")" asp-area=""
+                               asp-controller="VotingGuide" asp-action="Index">My Guide</a>
+                        </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentArea == "Admin" ? "active" : "")"
+                                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav align-items-lg-center">
+                        <li class="nav-item me-lg-3 mb-2 mb-lg-0">
+                            <button type="button" id="theme-toggle" class="btn btn-outline-light btn-sm"
+                                    aria-label="Toggle dark mode">Dark mode</button>
+                        </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <span class="navbar-text me-lg-3">@User.Identity.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @Active("Account")" asp-area=""
+                                   asp-controller="Account" asp-action="Login">Admin Login</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - <span class="d-none d-sm-inline">Municipal Elections Management System</span><span class="d-sm-none">MEMS</span>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

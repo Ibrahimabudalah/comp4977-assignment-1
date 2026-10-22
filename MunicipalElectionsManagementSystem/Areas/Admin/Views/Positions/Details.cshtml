@@ -1,0 +1,26 @@
+@model MunicipalElectionsManagementSystem.Models.Position
+
+@{
+    ViewData["Title"] = "Position Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Position Details</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">@Model.Name</h5>
+
+            <p><strong>Municipality:</strong> @Model.Municipality?.Name</p>
+            <p><strong>Seats Available:</strong> @Model.SeatsAvailable</p>
+            <p><strong>Candidates:</strong> @Model.Candidates.Count</p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.PositionId" class="btn btn-primary">Edit</a>
+
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+@model MunicipalElectionsManagementSystem.Models.Candidate
+
+@{
+    ViewData["Title"] = "Delete Candidate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Delete Candidate</h2>
+
+    <div class="alert alert-warning">
+        Are you sure you want to permanently delete
+        <strong>@Model.Name</strong>?
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.PhotoFileName))
+            {
+                <img src="@Url.Content("~/uploads/candidates/" + Model.PhotoFileName)" alt="@Model.Name"
+                     class="img-thumbnail mb-3" style="max-width: 120px; max-height: 120px; object-fit: cover;" />
+            }
+
+            <p><strong>Name:</strong> @Model.Name</p>
+            <p><strong>Municipality:</strong> @Model.Position?.Municipality?.Name</p>
+            <p><strong>Position:</strong> @Model.Position?.Name</p>
+        </div>
+    </div>
+
+    <form asp-action="Delete" asp-route-id="@Model.CandidateId" method="post">
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="btn btn-danger">
+            Confirm Delete
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
