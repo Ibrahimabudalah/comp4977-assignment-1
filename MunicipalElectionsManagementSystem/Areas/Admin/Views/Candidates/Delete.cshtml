@@ -13,6 +13,15 @@
         <strong>@Model.Name</strong>?
     </div>
 
+    @if (ViewBag.SavedCount > 0)
+    {
+        <div class="alert alert-info">
+            @ViewBag.SavedCount @(ViewBag.SavedCount == 1 ? "user has" : "users have")
+            saved this candidate to their voting guide.
+            Deleting removes it from their guides too.
+        </div>
+    }
+
     <div class="card mb-4">
         <div class="card-body">
             @if (!string.IsNullOrEmpty(Model.PhotoFileName))

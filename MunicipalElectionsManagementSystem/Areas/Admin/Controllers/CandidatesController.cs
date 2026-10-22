@@ -371,6 +371,10 @@ public class CandidatesController : Controller
             return Forbid();
         }
 
+        //deleting also removes the candidate from app users' voting guides (cascade)
+        ViewBag.SavedCount = await _context.SavedCandidates
+            .CountAsync(s => s.CandidateId == id);
+
         return View(candidate);
     }
 

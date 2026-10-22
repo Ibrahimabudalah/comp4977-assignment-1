@@ -34,7 +34,9 @@ public class UsersController : Controller
 
     public async Task<IActionResult> Index()
     {
+        //admins only; mobile app users have no role and are managed through the API
         var users = await _context.Users
+            .Where(u => _context.UserRoles.Any(ur => ur.UserId == u.Id))
             .Include(u => u.Municipality)
             .OrderBy(u => u.UserName)
             .ToListAsync();
