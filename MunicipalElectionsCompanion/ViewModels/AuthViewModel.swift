@@ -71,6 +71,7 @@ class AuthViewModel: ObservableObject {
     }
 
     func logout() {
+        TokenManager.shared.deleteToken()
         isLoggedIn = false
         email = ""
         password = ""
