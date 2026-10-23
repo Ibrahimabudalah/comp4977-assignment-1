@@ -7,34 +7,33 @@ struct MunicipalitiesView: View {
     var body: some View {
         NavigationStack {
             List(viewModel.municipalities) { municipality in
-                HStack(spacing: 15) {
-                    Image(systemName: "building.2.crop.circle")
-                        .font(.system(size: 35))
-                        .foregroundStyle(.blue)
-                        .frame(width: 50, height: 50)
+                NavigationLink {
+                    MunicipalityDetailView(municipality: municipality)
+                } label: {
+                    HStack(spacing: 15) {
+                        Image(systemName: "building.2.crop.circle")
+                            .font(.system(size: 35))
+                            .foregroundStyle(.blue)
+                            .frame(width: 50, height: 50)
 
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(municipality.name)
-                            .font(.headline)
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(municipality.name)
+                                .font(.headline)
 
-                        Text(municipality.province)
-                            .font(.subheadline)
+                            Text(municipality.province)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+
+                            Text(
+                                municipality.electionDate,
+                                style: .date
+                            )
+                            .font(.caption)
                             .foregroundStyle(.secondary)
-
-                        Text(
-                            municipality.electionDate,
-                            style: .date
-                        )
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        }
                     }
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.gray)
+                    .padding(.vertical, 5)
                 }
-                .padding(.vertical, 5)
             }
             .navigationTitle("Municipalities")
             .task {
@@ -42,8 +41,4 @@ struct MunicipalitiesView: View {
             }
         }
     }
-}
-
-#Preview {
-    MunicipalitiesView()
 }
