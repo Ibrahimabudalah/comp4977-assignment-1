@@ -62,12 +62,3 @@ struct ProfileView: View {
         }
     }
 }
-
-#Preview {
-    let auth = AuthViewModel()
-    auth.loggedInName = "Test User"
-    auth.loggedInEmail = "test@example.com"
-
-    return ProfileView(viewModel: auth)
-        .environmentObject(VotingGuideViewModel())
-}

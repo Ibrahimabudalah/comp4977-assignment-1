@@ -1,5 +1,4 @@
 
-
 import Foundation
 
 struct Candidate: Identifiable, Codable {
@@ -11,6 +10,8 @@ struct Candidate: Identifiable, Codable {
     let email: String?
     let positionId: Int
     let municipalityId: Int
+    let positionName: String?
+    let municipalityName: String?
 
     var id: Int { candidateId }
 }

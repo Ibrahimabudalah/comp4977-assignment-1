@@ -3,30 +3,28 @@ import SwiftUI
 
 struct CandidateDetailView: View {
     let candidate: Candidate
+
     @EnvironmentObject var votingGuide: VotingGuideViewModel
+    @State private var isUpdating = false
 
     private var positionName: String {
-        MockData.positions.first {
-            $0.positionId == candidate.positionId
-        }?.name ?? "Unknown Position"
+        candidate.positionName ?? "Unknown Position"
     }
 
     private var municipalityName: String {
-        MockData.municipalities.first {
-            $0.municipalityId == candidate.municipalityId
-        }?.name ?? "Unknown Municipality"
+        candidate.municipalityName ?? "Unknown Municipality"
     }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
 
-                //candidate photo
+                // Candidate photo
                 Image(systemName: "person.crop.circle.fill")
                     .font(.system(size: 100))
                     .foregroundStyle(.blue)
 
-                //candidate name and position
+                // Candidate name and position
                 VStack(spacing: 5) {
                     Text(candidate.name)
                         .font(.title)
@@ -38,7 +36,7 @@ struct CandidateDetailView: View {
 
                 Divider()
 
-                //biography
+                // Biography
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Biography")
                         .font(.headline)
@@ -49,7 +47,7 @@ struct CandidateDetailView: View {
 
                 Divider()
 
-                //contact information
+                // Contact information
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Contact Information")
                         .font(.headline)
@@ -72,37 +70,52 @@ struct CandidateDetailView: View {
 
                 Spacer(minLength: 20)
 
-                //voting Guide button
+                // Voting guide button
                 Button {
-                    if votingGuide.isSaved(candidate) {
-                        votingGuide.removeCandidate(candidate)
-                    } else {
-                        votingGuide.addCandidate(candidate)
+                    Task {
+                        isUpdating = true
+                        defer { isUpdating = false }
+
+                        if votingGuide.isSaved(candidate) {
+                            await votingGuide.removeCandidate(candidate)
+                        } else {
+                            await votingGuide.addCandidate(candidate)
+                        }
                     }
                 } label: {
-                    Label(
-                        votingGuide.isSaved(candidate)
-                            ? "Remove from Voting Guide"
-                            : "Add to Voting Guide",
-                        systemImage: votingGuide.isSaved(candidate)
-                            ? "bookmark.fill"
-                            : "bookmark"
-                    )
+                    HStack {
+                        if isUpdating {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Label(
+                                votingGuide.isSaved(candidate)
+                                    ? "Remove from Voting Guide"
+                                    : "Add to Voting Guide",
+                                systemImage: votingGuide.isSaved(candidate)
+                                    ? "bookmark.fill"
+                                    : "bookmark"
+                            )
+                        }
+                    }
                     .frame(maxWidth: .infinity)
                     .padding()
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(isUpdating)
+
+                if !votingGuide.errorMessage.isEmpty {
+                    Text(votingGuide.errorMessage)
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                }
             }
             .padding()
         }
         .navigationTitle("Candidate Details")
         .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-#Preview {
-    NavigationStack {
-        CandidateDetailView(candidate: MockData.candidates[0])
-            .environmentObject(VotingGuideViewModel())
+        .task {
+            await votingGuide.loadSavedCandidates()
+        }
     }
 }

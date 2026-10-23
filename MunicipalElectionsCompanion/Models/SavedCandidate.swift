@@ -6,6 +6,7 @@ struct SavedCandidate: Identifiable, Codable {
     let userId: String
     let candidateId: Int
     let dateSaved: Date
+    let candidate: Candidate?
 
     var id: Int { savedCandidateId }
 }

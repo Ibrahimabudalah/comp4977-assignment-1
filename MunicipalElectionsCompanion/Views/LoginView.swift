@@ -34,32 +34,46 @@ struct LoginView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .textFieldStyle(.roundedBorder)
+                        .disabled(viewModel.isLoading)
 
                     SecureField("Password", text: $viewModel.password)
                         .textContentType(.password)
                         .textFieldStyle(.roundedBorder)
+                        .disabled(viewModel.isLoading)
                 }
 
                 if !viewModel.errorMessage.isEmpty {
                     Text(viewModel.errorMessage)
                         .foregroundStyle(.red)
                         .font(.caption)
+                        .multilineTextAlignment(.center)
                 }
 
                 Button {
-                    viewModel.login()
+                    Task {
+                        await viewModel.login()
+                    }
                 } label: {
-                    Text("Login")
-                        .frame(maxWidth: .infinity)
-                        .padding(5)
+                    HStack {
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Text("Login")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(5)
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(viewModel.isLoading)
 
                 NavigationLink {
                     RegisterView(viewModel: viewModel)
                 } label: {
                     Text("Don't have an account? Register")
                 }
+                .disabled(viewModel.isLoading)
 
                 Spacer()
             }

@@ -6,10 +6,10 @@ struct CandidateListView: View {
 
     private var availablePositions: [Position] {
         if viewModel.selectedMunicipality == 0 {
-            return MockData.positions
+            return viewModel.positions
         }
 
-        return MockData.positions.filter {
+        return viewModel.positions.filter {
             $0.municipalityId == viewModel.selectedMunicipality
         }
     }
@@ -20,7 +20,7 @@ struct CandidateListView: View {
                 Picker("Municipality", selection: $viewModel.selectedMunicipality) {
                     Text("All Municipalities").tag(0)
 
-                    ForEach(MockData.municipalities) { municipality in
+                    ForEach(viewModel.municipalities) { municipality in
                         Text(municipality.name)
                             .tag(municipality.municipalityId)
                     }
@@ -53,10 +53,10 @@ struct CandidateListView: View {
                                 Text(candidate.name)
                                     .font(.headline)
 
-                                Text(viewModel.positionName(for: candidate))
+                                Text(viewModel.positionName(for: candidate.positionId))
                                     .font(.subheadline)
 
-                                Text(viewModel.municipalityName(for: candidate))
+                                Text(viewModel.municipalityName(for: candidate.municipalityId))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -83,13 +83,14 @@ struct CandidateListView: View {
                 )
             }
         }
-        .onAppear {
-            viewModel.loadCandidates()
+        .task {
+            await viewModel.loadFilterData()
+            await viewModel.loadCandidates()
         }
     }
 
     private func municipalityName(for position: Position) -> String {
-        MockData.municipalities.first {
+        viewModel.municipalities.first {
             $0.municipalityId == position.municipalityId
         }?.name ?? ""
     }

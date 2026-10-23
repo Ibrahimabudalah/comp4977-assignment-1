@@ -37,8 +37,8 @@ struct MunicipalitiesView: View {
                 .padding(.vertical, 5)
             }
             .navigationTitle("Municipalities")
-            .onAppear {
-                viewModel.loadMunicipalities()
+            .task {
+                await viewModel.loadMunicipalities()
             }
         }
     }

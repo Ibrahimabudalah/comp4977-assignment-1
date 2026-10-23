@@ -36,8 +36,7 @@ enum APIError: LocalizedError {
 final class APIService {
     static let shared = APIService()
 
-    // replace this when you finish the dotnet API
-    private let baseURL = "https://blabla.blabla.com"
+    private let baseURL = "https://comp4976-elections-f0hge0avgmeta5f0.canadacentral-01.azurewebsites.net"
 
     private init() {}
 
@@ -164,19 +163,60 @@ final class APIService {
                 httpResponse.statusCode
             )
         }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            print("API ERROR STATUS:", httpResponse.statusCode)
+
+            if let responseBody = String(data: data, encoding: .utf8) {
+                print("API ERROR BODY:", responseBody)
+            }
+        }
 
         if data.isEmpty, T.self == EmptyResponse.self {
             return EmptyResponse() as! T
         }
 
         do {
-            return try JSONDecoder().decode(
+            return try JSONDecoder.api.decode(
                 T.self,
                 from: data
             )
         } catch {
             throw APIError.decodingError
         }
+    }
+}
+
+
+extension JSONDecoder {
+    static var api: JSONDecoder {
+        let decoder = JSONDecoder()
+
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let value = try container.decode(String.self)
+
+            if let date = ISO8601DateFormatter().date(from: value) {
+                return date
+            }
+
+            let formatter = DateFormatter()
+            formatter.calendar = Calendar(identifier: .iso8601)
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = .current
+            formatter.dateFormat = "yyyy-MM-dd"
+
+            if let date = formatter.date(from: value) {
+                return date
+            }
+
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Invalid date: \(value)"
+            )
+        }
+
+        return decoder
     }
 }
 

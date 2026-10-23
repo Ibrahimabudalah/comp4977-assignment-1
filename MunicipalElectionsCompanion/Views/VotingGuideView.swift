@@ -42,7 +42,9 @@ struct VotingGuideView: View {
                             }
                             .swipeActions {
                                 Button(role: .destructive) {
-                                    votingGuide.removeCandidate(candidate)
+                                    Task {
+                                            await votingGuide.removeCandidate(candidate)
+                                        }
                                 } label: {
                                     Label("Remove", systemImage: "trash")
                                 }
@@ -52,19 +54,18 @@ struct VotingGuideView: View {
                 }
             }
             .navigationTitle("My Voting Guide")
+            .task {
+                await votingGuide.loadSavedCandidates()
+            }
         }
     }
 
     private func positionName(for candidate: Candidate) -> String {
-        MockData.positions.first {
-            $0.positionId == candidate.positionId
-        }?.name ?? "Unknown Position"
+        candidate.positionName ?? "Unknown Position"
     }
 
     private func municipalityName(for candidate: Candidate) -> String {
-        MockData.municipalities.first {
-            $0.municipalityId == candidate.municipalityId
-        }?.name ?? "Unknown Municipality"
+        candidate.municipalityName ?? "Unknown Municipality"
     }
 }
 

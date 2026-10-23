@@ -54,7 +54,9 @@ struct RegisterView: View {
                 }
 
                 Button {
-                    viewModel.register()
+                    Task {
+                            await viewModel.register()
+                        }
                 } label: {
                     Text("Create Account")
                         .frame(maxWidth: .infinity)
