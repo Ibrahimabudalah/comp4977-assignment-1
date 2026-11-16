@@ -1,3 +1,9 @@
+//
+//  CandidateViewModel.swift
+//  MunicipalElectionsCompanion
+//
+//  Created by Ibrahim Abudalah on 2026-10-21.
+//
 
 import Foundation
 import Combine
@@ -5,11 +11,10 @@ import Combine
 @MainActor
 class CandidateViewModel: ObservableObject {
     @Published var candidates: [Candidate] = []
-    @Published var municipalities: [Municipality] = []
     @Published var positions: [Position] = []
+    @Published var municipalities: [Municipality] = []
 
     @Published var searchText = ""
-    @Published var selectedMunicipality = 0
     @Published var selectedPosition = 0
 
     @Published var isLoading = false
@@ -20,70 +25,53 @@ class CandidateViewModel: ObservableObject {
             let matchesSearch = searchText.isEmpty ||
                 candidate.name.localizedCaseInsensitiveContains(searchText)
 
-            let matchesMunicipality = selectedMunicipality == 0 ||
-                candidate.municipalityId == selectedMunicipality
-
             let matchesPosition = selectedPosition == 0 ||
                 candidate.positionId == selectedPosition
 
-            return matchesSearch &&
-                   matchesMunicipality &&
-                   matchesPosition
+            return matchesSearch && matchesPosition
         }
     }
 
-    func loadCandidates() async {
+    func loadData(for municipalityId: Int? = nil) async {
         isLoading = true
         errorMessage = ""
         defer { isLoading = false }
 
         do {
-            candidates = try await APIService.shared.get(
-                "/api/candidates"
-            )
+            async let loadedMunicipalities: [Municipality] = APIService.shared.get("/api/municipalities")
 
-            print("Loaded \(candidates.count) candidates from Azure")
+            let positionsEndpoint: String
+            let candidatesEndpoint: String
+
+            if let municipalityId, municipalityId > 0 {
+                positionsEndpoint = "/api/positions?municipalityId=\(municipalityId)"
+                candidatesEndpoint = "/api/candidates?municipalityId=\(municipalityId)"
+            } else {
+                positionsEndpoint = "/api/positions"
+                candidatesEndpoint = "/api/candidates"
+            }
+
+            async let loadedPositions: [Position] = APIService.shared.get(positionsEndpoint)
+            async let loadedCandidates: [Candidate] = APIService.shared.get(candidatesEndpoint)
+
+            let (muns, pos, cands) = try await (loadedMunicipalities, loadedPositions, loadedCandidates)
+
+            self.municipalities = muns
+            self.positions = pos
+            self.candidates = cands
+
+            print("Loaded \(cands.count) candidates and \(pos.count) positions for municipality \(municipalityId ?? 0)")
         } catch {
-            candidates = []
-            errorMessage = "Failed to load candidates. Please try again."
-
+            errorMessage = "Failed to load candidate information. Please check your connection."
             print("Failed to load candidates: \(error.localizedDescription)")
         }
     }
 
     func positionName(for positionId: Int) -> String {
-        positions.first {
-            $0.positionId == positionId
-        }?.name ?? "Unknown Position"
+        positions.first { $0.positionId == positionId }?.name ?? "Unknown Position"
     }
 
     func municipalityName(for municipalityId: Int) -> String {
-        municipalities.first {
-            $0.municipalityId == municipalityId
-        }?.name ?? "Unknown Municipality"
-    }
-
-    func loadFilterData() async {
-        do {
-            async let municipalitiesRequest: [Municipality] =
-                APIService.shared.get("/api/municipalities")
-
-            async let positionsRequest: [Position] =
-                APIService.shared.get("/api/positions")
-
-            let (loadedMunicipalities, loadedPositions) =
-                try await (municipalitiesRequest, positionsRequest)
-
-            municipalities = loadedMunicipalities
-            positions = loadedPositions
-
-            print("Candidate filters loaded from Azure")
-        } catch {
-            municipalities = []
-            positions = []
-            errorMessage = "Failed to load candidate filters. Please try again."
-
-            print("Filter loading failed: \(error.localizedDescription)")
-        }
+        municipalities.first { $0.municipalityId == municipalityId }?.name ?? "Unknown Municipality"
     }
 }

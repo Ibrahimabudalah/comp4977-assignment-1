@@ -1,3 +1,9 @@
+//
+//  VotingGuideView.swift
+//  MunicipalElectionsCompanion
+//
+//  Created by Ibrahim Abudalah on 2026-10-21.
+//
 
 import SwiftUI
 
@@ -21,10 +27,15 @@ struct VotingGuideView: View {
                             NavigationLink {
                                 CandidateDetailView(candidate: candidate)
                             } label: {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "person.crop.circle.fill")
-                                        .font(.system(size: 40))
-                                        .foregroundStyle(.blue)
+                                HStack(spacing: 14) {
+                                    // Remote Candidate Photo with Fallback
+                                    RemoteImageView(
+                                        urlString: candidate.photoUrl,
+                                        fallbackSystemName: "person.crop.circle.fill",
+                                        size: 48,
+                                        shape: .circle,
+                                        fallbackColor: .blue
+                                    )
 
                                     VStack(alignment: .leading, spacing: 5) {
                                         Text(candidate.name)
@@ -32,19 +43,20 @@ struct VotingGuideView: View {
 
                                         Text(positionName(for: candidate))
                                             .font(.subheadline)
+                                            .foregroundStyle(.secondary)
 
                                         Text(municipalityName(for: candidate))
                                             .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                            .foregroundStyle(.blue)
                                     }
                                 }
-                                .padding(.vertical, 5)
+                                .padding(.vertical, 4)
                             }
                             .swipeActions {
                                 Button(role: .destructive) {
                                     Task {
-                                            await votingGuide.removeCandidate(candidate)
-                                        }
+                                        await votingGuide.removeCandidate(candidate)
+                                    }
                                 } label: {
                                     Label("Remove", systemImage: "trash")
                                 }
@@ -54,6 +66,9 @@ struct VotingGuideView: View {
                 }
             }
             .navigationTitle("My Voting Guide")
+            .refreshable {
+                await votingGuide.loadSavedCandidates()
+            }
             .task {
                 await votingGuide.loadSavedCandidates()
             }

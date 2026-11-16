@@ -10,44 +10,45 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject var authViewModel: AuthViewModel
     @EnvironmentObject var votingGuide: VotingGuideViewModel
+    @ObservedObject var municipalityManager = MunicipalityManager.shared
+
+    @State private var showingFirstTimeMunicipalitySheet = false
 
     var body: some View {
         TabView {
-            MunicipalitiesView()
-                .tabItem {
-                    Label(
-                        "Municipalities",
-                        systemImage: "building.2"
-                    )
-                }
-
             NavigationStack {
                 CandidateListView()
             }
             .tabItem {
-                Label(
-                    "Candidates",
-                    systemImage: "person.3"
-                )
+                Label("Candidates", systemImage: "person.3")
             }
+
+            MunicipalitiesView()
+                .tabItem {
+                    Label("Municipalities", systemImage: "building.2")
+                }
 
             VotingGuideView()
                 .tabItem {
-                    Label(
-                        "Voting Guide",
-                        systemImage: "bookmark"
-                    )
+                    Label("Voting Guide", systemImage: "bookmark")
                 }
 
             ProfileView(viewModel: authViewModel)
                 .tabItem {
-                    Label(
-                        "Profile",
-                        systemImage: "person.crop.circle"
-                    )
+                    Label("Profile", systemImage: "person.crop.circle")
                 }
         }
         .environmentObject(votingGuide)
+        .sheet(isPresented: $showingFirstTimeMunicipalitySheet) {
+            MunicipalitySelectionView(isMandatory: true)
+        }
+        .task {
+            // Load available municipalities and check if user needs first-time setup
+            await municipalityManager.loadAvailableMunicipalities()
+            if !municipalityManager.hasSelectedMunicipality {
+                showingFirstTimeMunicipalitySheet = true
+            }
+        }
     }
 }
 

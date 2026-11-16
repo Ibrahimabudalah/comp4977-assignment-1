@@ -1,3 +1,9 @@
+//
+//  MunicipalitiesView.swift
+//  MunicipalElectionsCompanion
+//
+//  Created by Ibrahim Abudalah on 2026-10-21.
+//
 
 import SwiftUI
 
@@ -11,12 +17,16 @@ struct MunicipalitiesView: View {
                     MunicipalityDetailView(municipality: municipality)
                 } label: {
                     HStack(spacing: 15) {
-                        Image(systemName: "building.2.crop.circle")
-                            .font(.system(size: 35))
-                            .foregroundStyle(.blue)
-                            .frame(width: 50, height: 50)
+                        // Remote Municipality Logo with Fallback
+                        RemoteImageView(
+                            urlString: municipality.logoUrl,
+                            fallbackSystemName: "building.2.crop.circle",
+                            size: 48,
+                            shape: .roundedRectangle(cornerRadius: 10),
+                            fallbackColor: .blue
+                        )
 
-                        VStack(alignment: .leading, spacing: 5) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(municipality.name)
                                 .font(.headline)
 
@@ -29,16 +39,28 @@ struct MunicipalitiesView: View {
                                 style: .date
                             )
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.blue)
                         }
                     }
-                    .padding(.vertical, 5)
+                    .padding(.vertical, 4)
                 }
             }
             .navigationTitle("Municipalities")
+            .refreshable {
+                await viewModel.loadMunicipalities()
+            }
+            .overlay {
+                if viewModel.isLoading && viewModel.municipalities.isEmpty {
+                    ProgressView("Loading municipalities...")
+                }
+            }
             .task {
                 await viewModel.loadMunicipalities()
             }
         }
     }
+}
+
+#Preview {
+    MunicipalitiesView()
 }

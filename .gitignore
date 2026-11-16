@@ -1,5 +1,6 @@
 
 .DS_Store
+__MACOSX/
 build/
 DerivedData/
 *.xcuserstate
@@ -12,3 +13,4 @@ publish/
 *.db-shm
 *.db-wal
 appsettings.Development.json
+

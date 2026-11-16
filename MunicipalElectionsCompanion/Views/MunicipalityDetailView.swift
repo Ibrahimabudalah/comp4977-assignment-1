@@ -1,3 +1,9 @@
+//
+//  MunicipalityDetailView.swift
+//  MunicipalElectionsCompanion
+//
+//  Created by Ibrahim Abudalah on 2026-10-21.
+//
 
 import SwiftUI
 
@@ -10,6 +16,37 @@ struct MunicipalityDetailView: View {
 
     var body: some View {
         List {
+            // Municipality Header with Remote Logo
+            Section {
+                HStack(spacing: 16) {
+                    RemoteImageView(
+                        urlString: municipality.logoUrl,
+                        fallbackSystemName: "building.2.crop.circle",
+                        size: 72,
+                        shape: .roundedRectangle(cornerRadius: 14),
+                        fallbackColor: .blue
+                    )
+
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(municipality.name)
+                            .font(.title2)
+                            .bold()
+
+                        Text(municipality.province)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+
+                        Label(
+                            municipality.electionDate.formatted(date: .long, time: .omitted),
+                            systemImage: "calendar"
+                        )
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                    }
+                }
+                .padding(.vertical, 6)
+            }
+
             Section("Municipality Information") {
                 LabeledContent("Name", value: municipality.name)
                 LabeledContent("Province", value: municipality.province)
@@ -23,6 +60,7 @@ struct MunicipalityDetailView: View {
                !description.isEmpty {
                 Section("Description") {
                     Text(description)
+                        .font(.body)
                 }
             }
 
@@ -74,5 +112,20 @@ struct MunicipalityDetailView: View {
             errorMessage = "Failed to load positions."
             print("Positions API error: \(error.localizedDescription)")
         }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        MunicipalityDetailView(
+            municipality: Municipality(
+                municipalityId: 1,
+                name: "Burnaby",
+                province: "BC",
+                electionDate: Date(),
+                description: "City of Burnaby local municipal election.",
+                logoUrl: "https://example.com/burnaby.png"
+            )
+        )
     }
 }
