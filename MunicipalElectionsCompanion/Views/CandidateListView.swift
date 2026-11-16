@@ -14,12 +14,11 @@ struct CandidateListView: View {
 
     var body: some View {
         List {
-            // Prominent City Header Banner (Assignment 2 Requirement)
             Section {
                 HStack(spacing: 12) {
                     if let municipality = municipalityManager.selectedMunicipality {
                         RemoteImageView(
-                            urlString: municipality.logoUrl,
+                            urlString: municipality.displayLogoUrl,
                             fallbackSystemName: "building.2.crop.circle.fill",
                             size: 46,
                             shape: .roundedRectangle(cornerRadius: 10),
@@ -107,12 +106,16 @@ struct CandidateListView: View {
                 } else {
                     ForEach(viewModel.filteredCandidates) { candidate in
                         NavigationLink {
-                            CandidateDetailView(candidate: candidate)
+                            CandidateDetailView(
+                                candidate: candidate,
+                                availablePositions: viewModel.positions
+                            )
                         } label: {
                             HStack(spacing: 14) {
                                 // Candidate Remote Photo with Fallback
                                 RemoteImageView(
                                     urlString: candidate.photoUrl,
+                                    initialsText: candidate.name,
                                     fallbackSystemName: "person.crop.circle.fill",
                                     size: 54,
                                     shape: .circle,

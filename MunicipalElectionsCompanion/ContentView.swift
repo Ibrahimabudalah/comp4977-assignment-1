@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject var authViewModel: AuthViewModel
     @EnvironmentObject var votingGuide: VotingGuideViewModel
+    @EnvironmentObject var selectionsViewModel: CandidateSelectionsViewModel
     @ObservedObject var municipalityManager = MunicipalityManager.shared
 
     @State private var showingFirstTimeMunicipalitySheet = false
@@ -28,9 +29,9 @@ struct ContentView: View {
                     Label("Municipalities", systemImage: "building.2")
                 }
 
-            VotingGuideView()
+            CandidateSelectionsView()
                 .tabItem {
-                    Label("Voting Guide", systemImage: "bookmark")
+                    Label("My Selections", systemImage: "checkmark.seal")
                 }
 
             ProfileView(viewModel: authViewModel)
@@ -39,11 +40,14 @@ struct ContentView: View {
                 }
         }
         .environmentObject(votingGuide)
+        .environmentObject(selectionsViewModel)
         .sheet(isPresented: $showingFirstTimeMunicipalitySheet) {
             MunicipalitySelectionView(isMandatory: true)
         }
         .task {
-            // Load available municipalities and check if user needs first-time setup
+            // Restore user's municipality preference and selections
+            municipalityManager.setUserEmail(authViewModel.loggedInEmail)
+            selectionsViewModel.setUserEmail(authViewModel.loggedInEmail)
             await municipalityManager.loadAvailableMunicipalities()
             if !municipalityManager.hasSelectedMunicipality {
                 showingFirstTimeMunicipalitySheet = true
@@ -55,4 +59,5 @@ struct ContentView: View {
 #Preview {
     ContentView(authViewModel: AuthViewModel())
         .environmentObject(VotingGuideViewModel())
+        .environmentObject(CandidateSelectionsViewModel())
 }

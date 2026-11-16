@@ -50,7 +50,7 @@ struct MunicipalitySelectionView: View {
                         } label: {
                             HStack(spacing: 14) {
                                 RemoteImageView(
-                                    urlString: municipality.logoUrl,
+                                    urlString: municipality.displayLogoUrl,
                                     fallbackSystemName: "building.2.crop.circle",
                                     size: 48,
                                     shape: .roundedRectangle(cornerRadius: 10)

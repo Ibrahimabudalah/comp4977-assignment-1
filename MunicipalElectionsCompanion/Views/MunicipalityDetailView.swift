@@ -20,7 +20,7 @@ struct MunicipalityDetailView: View {
             Section {
                 HStack(spacing: 16) {
                     RemoteImageView(
-                        urlString: municipality.logoUrl,
+                        urlString: municipality.displayLogoUrl,
                         fallbackSystemName: "building.2.crop.circle",
                         size: 72,
                         shape: .roundedRectangle(cornerRadius: 14),

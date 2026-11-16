@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileView: View {
     @ObservedObject var viewModel: AuthViewModel
     @EnvironmentObject var votingGuide: VotingGuideViewModel
+    @EnvironmentObject var selectionsViewModel: CandidateSelectionsViewModel
     @ObservedObject var municipalityManager = MunicipalityManager.shared
 
     @State private var showingMunicipalitySheet = false
@@ -41,12 +42,11 @@ struct ProfileView: View {
                     }
                 }
 
-                // Configured Municipality Section (Assignment 2 Requirement)
                 Section("Municipality of Residence") {
                     if let municipality = municipalityManager.selectedMunicipality {
                         HStack(spacing: 12) {
                             RemoteImageView(
-                                urlString: municipality.logoUrl,
+                                urlString: municipality.displayLogoUrl,
                                 fallbackSystemName: "building.2.crop.circle.fill",
                                 size: 44,
                                 shape: .roundedRectangle(cornerRadius: 10),
@@ -93,7 +93,32 @@ struct ProfileView: View {
                     }
                 }
 
-                // Account Information
+                Section("Candidate Selections") {
+                    LabeledContent("Total Saved Selections") {
+                        Text("\(selectionsViewModel.selections.count)")
+                            .bold()
+                            .foregroundStyle(.blue)
+                    }
+
+                    if let municipality = municipalityManager.selectedMunicipality {
+                        LabeledContent("Selections for \(municipality.name)") {
+                            Text("\(selectionsViewModel.filteredSelections(for: municipality.name).count)")
+                                .bold()
+                        }
+                    }
+
+                    LabeledContent("Last Synchronized") {
+                        if let syncDate = selectionsViewModel.lastSyncTimestamp {
+                            Text(syncDate.formatted(date: .abbreviated, time: .shortened))
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Not yet synchronized")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                // Account Details
                 Section("Account Details") {
                     LabeledContent("Name", value: viewModel.loggedInName.isEmpty ? "Voter" : viewModel.loggedInName)
                     LabeledContent("Email", value: viewModel.loggedInEmail.isEmpty ? "Not available" : viewModel.loggedInEmail)
@@ -103,7 +128,7 @@ struct ProfileView: View {
                 Section {
                     Button(role: .destructive) {
                         votingGuide.clearVotingGuide()
-                        municipalityManager.clearSelection()
+                        municipalityManager.resetForLogout()
                         viewModel.logout()
                     } label: {
                         Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
@@ -114,6 +139,9 @@ struct ProfileView: View {
             .sheet(isPresented: $showingMunicipalitySheet) {
                 MunicipalitySelectionView(isMandatory: false)
             }
+            .task {
+                selectionsViewModel.setUserEmail(viewModel.loggedInEmail)
+            }
         }
     }
 }
@@ -121,4 +149,5 @@ struct ProfileView: View {
 #Preview {
     ProfileView(viewModel: AuthViewModel())
         .environmentObject(VotingGuideViewModel())
+        .environmentObject(CandidateSelectionsViewModel())
 }

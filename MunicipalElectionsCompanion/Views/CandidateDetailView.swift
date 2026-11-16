@@ -9,9 +9,14 @@ import SwiftUI
 
 struct CandidateDetailView: View {
     let candidate: Candidate
+    var availablePositions: [Position] = []
 
-    @EnvironmentObject var votingGuide: VotingGuideViewModel
-    @State private var isUpdating = false
+    @EnvironmentObject var selectionsViewModel: CandidateSelectionsViewModel
+    @State private var showingNotesSheet = false
+    @State private var notesDraft = ""
+    @State private var showingDeleteAlert = false
+    @State private var quotaErrorMessage: String? = nil
+    @State private var showingQuotaAlert = false
 
     private var positionName: String {
         candidate.positionName ?? "Unknown Position"
@@ -21,12 +26,21 @@ struct CandidateDetailView: View {
         candidate.municipalityName ?? "Unknown Municipality"
     }
 
+    private var isSaved: Bool {
+        selectionsViewModel.isCandidateSelected(candidate.candidateId)
+    }
+
+    private var currentSelection: CandidateSelection? {
+        selectionsViewModel.selection(for: candidate.candidateId)
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 // Candidate Remote Photo with Fallback
                 RemoteImageView(
                     urlString: candidate.photoUrl,
+                    initialsText: candidate.name,
                     fallbackSystemName: "person.crop.circle.fill",
                     size: 120,
                     shape: .circle,
@@ -46,6 +60,14 @@ struct CandidateDetailView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+
+                    if isSaved {
+                        Label("Saved to My Selections", systemImage: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                            .bold()
+                            .padding(.top, 2)
+                    }
                 }
 
                 Divider()
@@ -95,55 +117,131 @@ struct CandidateDetailView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
+                // Current Saved Notes (if any)
+                if let selection = currentSelection, !selection.notes.isEmpty {
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("My Notes")
+                                .font(.headline)
+                            Spacer()
+                            Button("Edit") {
+                                notesDraft = selection.notes
+                                showingNotesSheet = true
+                            }
+                            .font(.caption)
+                        }
+
+                        Text(selection.notes)
+                            .font(.subheadline)
+                            .padding(10)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.systemGray6))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
                 Spacer(minLength: 20)
 
-                // Voting Guide Button
-                Button {
-                    Task {
-                        isUpdating = true
-                        defer { isUpdating = false }
-
-                        if votingGuide.isSaved(candidate) {
-                            await votingGuide.removeCandidate(candidate)
-                        } else {
-                            await votingGuide.addCandidate(candidate)
+                // Action Buttons: Add, Edit, Delete
+                VStack(spacing: 12) {
+                    if isSaved {
+                        // Edit Selection Button
+                        Button {
+                            notesDraft = currentSelection?.notes ?? ""
+                            showingNotesSheet = true
+                        } label: {
+                            Label("Edit Selection Notes", systemImage: "pencil")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
                         }
-                    }
-                } label: {
-                    HStack {
-                        if isUpdating {
-                            ProgressView()
-                                .tint(.white)
-                        } else {
-                            Label(
-                                votingGuide.isSaved(candidate)
-                                    ? "Remove from Voting Guide"
-                                    : "Add to Voting Guide",
-                                systemImage: votingGuide.isSaved(candidate)
-                                    ? "bookmark.fill"
-                                    : "bookmark"
+                        .buttonStyle(.borderedProminent)
+
+                        // Delete Selection Button
+                        Button(role: .destructive) {
+                            showingDeleteAlert = true
+                        } label: {
+                            Label("Delete Selection", systemImage: "trash")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                        }
+                        .buttonStyle(.bordered)
+                    } else {
+                        // Add Selection Button
+                        Button {
+                            let validation = selectionsViewModel.validateCanSelect(
+                                candidate,
+                                availablePositions: availablePositions
                             )
-                            .font(.headline)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(isUpdating)
 
-                if !votingGuide.errorMessage.isEmpty {
-                    Text(votingGuide.errorMessage)
-                        .foregroundStyle(.red)
-                        .font(.caption)
+                            if !validation.canAdd {
+                                quotaErrorMessage = validation.message
+                                showingQuotaAlert = true
+                            } else {
+                                notesDraft = ""
+                                showingNotesSheet = true
+                            }
+                        } label: {
+                            Label("Add Selection", systemImage: "plus.circle.fill")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 }
             }
             .padding()
         }
         .navigationTitle("Candidate Details")
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            await votingGuide.loadSavedCandidates()
+        .alert("Cannot Add Candidate", isPresented: $showingQuotaAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(quotaErrorMessage ?? "You have reached the maximum allowed candidates for this position.")
+        }
+        .confirmationDialog(
+            "Delete Selection",
+            isPresented: $showingDeleteAlert,
+            titleVisibility: .visible
+        ) {
+            Button("Remove \(candidate.name)", role: .destructive) {
+                if let selection = currentSelection {
+                    withAnimation {
+                        _ = selectionsViewModel.deleteSelection(selectionId: selection.id)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to remove \(candidate.name) from your candidate selections?")
+        }
+        .sheet(isPresented: $showingNotesSheet) {
+            EditSelectionNotesSheet(
+                candidateName: candidate.name,
+                positionName: positionName,
+                photoUrl: candidate.photoUrl,
+                notes: $notesDraft
+            ) { newNotes in
+                if isSaved {
+                    if let selection = currentSelection {
+                        _ = selectionsViewModel.updateSelection(
+                            selectionId: selection.id,
+                            notes: newNotes
+                        )
+                    }
+                } else {
+                    _ = selectionsViewModel.createSelection(
+                        candidate: candidate,
+                        notes: newNotes,
+                        availablePositions: availablePositions
+                    )
+                }
+            }
         }
     }
 }
@@ -164,6 +262,6 @@ struct CandidateDetailView: View {
                 municipalityName: "Burnaby"
             )
         )
-        .environmentObject(VotingGuideViewModel())
+        .environmentObject(CandidateSelectionsViewModel())
     }
 }

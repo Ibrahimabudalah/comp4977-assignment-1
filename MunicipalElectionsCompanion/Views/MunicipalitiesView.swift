@@ -19,7 +19,7 @@ struct MunicipalitiesView: View {
                     HStack(spacing: 15) {
                         // Remote Municipality Logo with Fallback
                         RemoteImageView(
-                            urlString: municipality.logoUrl,
+                            urlString: municipality.displayLogoUrl,
                             fallbackSystemName: "building.2.crop.circle",
                             size: 48,
                             shape: .roundedRectangle(cornerRadius: 10),
