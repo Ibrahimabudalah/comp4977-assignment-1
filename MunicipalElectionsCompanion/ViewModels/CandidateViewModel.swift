@@ -32,35 +32,30 @@ class CandidateViewModel: ObservableObject {
         }
     }
 
-    func loadData(for municipalityId: Int? = nil) async {
+    /// Loads election data for one municipality only. With no municipality selected
+    /// nothing is loaded, so data from other cities can never reach the UI.
+    func loadData(for municipalityId: Int?) async {
+        guard let municipalityId, municipalityId > 0 else {
+            candidates = []
+            positions = []
+            errorMessage = ""
+            return
+        }
+
         isLoading = true
         errorMessage = ""
         defer { isLoading = false }
 
         do {
             async let loadedMunicipalities: [Municipality] = APIService.shared.get("/api/municipalities")
-
-            let positionsEndpoint: String
-            let candidatesEndpoint: String
-
-            if let municipalityId, municipalityId > 0 {
-                positionsEndpoint = "/api/positions?municipalityId=\(municipalityId)"
-                candidatesEndpoint = "/api/candidates?municipalityId=\(municipalityId)"
-            } else {
-                positionsEndpoint = "/api/positions"
-                candidatesEndpoint = "/api/candidates"
-            }
-
-            async let loadedPositions: [Position] = APIService.shared.get(positionsEndpoint)
-            async let loadedCandidates: [Candidate] = APIService.shared.get(candidatesEndpoint)
+            async let loadedPositions: [Position] = APIService.shared.get("/api/positions?municipalityId=\(municipalityId)")
+            async let loadedCandidates: [Candidate] = APIService.shared.get("/api/candidates?municipalityId=\(municipalityId)")
 
             let (muns, pos, cands) = try await (loadedMunicipalities, loadedPositions, loadedCandidates)
 
             self.municipalities = muns
             self.positions = pos
             self.candidates = cands
-
-            print("Loaded \(cands.count) candidates and \(pos.count) positions for municipality \(municipalityId ?? 0)")
         } catch {
             errorMessage = "Failed to load candidate information. Please check your connection."
             print("Failed to load candidates: \(error.localizedDescription)")

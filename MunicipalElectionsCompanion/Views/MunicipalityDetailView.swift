@@ -90,7 +90,7 @@ struct MunicipalityDetailView: View {
         }
         .navigationTitle(municipality.name)
         .navigationBarTitleDisplayMode(.inline)
-        .task {
+        .task(id: municipality.municipalityId) {
             await loadPositions()
         }
     }
@@ -101,13 +101,9 @@ struct MunicipalityDetailView: View {
         defer { isLoading = false }
 
         do {
-            let allPositions: [Position] = try await APIService.shared.get(
-                "/api/positions"
+            positions = try await APIService.shared.get(
+                "/api/positions?municipalityId=\(municipality.municipalityId)"
             )
-
-            positions = allPositions.filter {
-                $0.municipalityId == municipality.municipalityId
-            }
         } catch {
             errorMessage = "Failed to load positions."
             print("Positions API error: \(error.localizedDescription)")

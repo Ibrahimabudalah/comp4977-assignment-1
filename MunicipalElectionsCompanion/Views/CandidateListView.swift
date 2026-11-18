@@ -168,7 +168,7 @@ struct CandidateListView: View {
             }
         }
         .overlay {
-            if !viewModel.isLoading && viewModel.filteredCandidates.isEmpty {
+            if municipalityManager.selectedMunicipality != nil && !viewModel.isLoading && viewModel.filteredCandidates.isEmpty {
                 ContentUnavailableView.search(text: viewModel.searchText)
             }
         }
