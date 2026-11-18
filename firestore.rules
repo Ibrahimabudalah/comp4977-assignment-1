@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function email() { return request.auth.token.email; }
+    function signedIn() { return request.auth != null && request.auth.token.email != null; }
+
+    match /CandidateSelections/{selectionId} {
+      allow read, delete: if signedIn() && resource.data.userEmail == email();
+      allow create: if signedIn()
+        && request.resource.data.userEmail == email()
+        && request.resource.data.candidateId is int
+        && request.resource.data.municipalityId is int
+        && request.resource.data.candidateName is string && request.resource.data.candidateName.size() > 0
+        && request.resource.data.notes is string && request.resource.data.notes.size() <= 500;
+      allow update: if signedIn()
+        && resource.data.userEmail == email()
+        && request.resource.data.userEmail == resource.data.userEmail
+        && request.resource.data.candidateId == resource.data.candidateId
+        && request.resource.data.notes.size() <= 500;
+    }
+
+    match /UserProfiles/{userEmail} {
+      allow read, write: if signedIn() && userEmail == email();
+    }
+  }
+}

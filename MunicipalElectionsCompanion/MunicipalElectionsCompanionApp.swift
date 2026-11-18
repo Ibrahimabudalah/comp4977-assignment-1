@@ -1,10 +1,16 @@
 import SwiftUI
+import FirebaseCore
 
 @main
 struct MunicipalElectionsCompanionApp: App {
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var selectionsViewModel = CandidateSelectionsViewModel()
     @Environment(\.scenePhase) private var scenePhase
+
+    init() {
+        // Must run before any Auth or Firestore call (reads GoogleService-Info.plist)
+        FirebaseApp.configure()
+    }
 
     var body: some Scene {
         WindowGroup {
