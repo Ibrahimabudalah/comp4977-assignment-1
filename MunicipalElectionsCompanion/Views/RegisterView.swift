@@ -22,7 +22,7 @@ struct RegisterView: View {
                     .font(.largeTitle)
                     .bold()
 
-                Text("Register to build your voting guide")
+                Text("Register to save your candidate selections")
                     .foregroundStyle(.secondary)
 
                 VStack(spacing: 15) {

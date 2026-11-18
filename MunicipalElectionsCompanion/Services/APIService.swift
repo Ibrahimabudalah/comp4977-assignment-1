@@ -64,17 +64,6 @@ final class APIService {
         )
     }
 
-    func delete(
-        _ endpoint: String,
-        token: String? = nil
-    ) async throws {
-        let _: EmptyResponse = try await request(
-            endpoint,
-            method: "DELETE",
-            token: token
-        )
-    }
-
     private func request<T: Decodable>(
         _ endpoint: String,
         method: String,
@@ -172,10 +161,6 @@ final class APIService {
             }
         }
 
-        if data.isEmpty, T.self == EmptyResponse.self {
-            return EmptyResponse() as! T
-        }
-
         do {
             return try JSONDecoder.api.decode(
                 T.self,
@@ -219,5 +204,3 @@ extension JSONDecoder {
         return decoder
     }
 }
-
-struct EmptyResponse: Decodable {}

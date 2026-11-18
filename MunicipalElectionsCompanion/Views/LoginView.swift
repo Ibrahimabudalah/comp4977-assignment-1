@@ -24,7 +24,7 @@ struct LoginView: View {
                     .bold()
                     .multilineTextAlignment(.center)
 
-                Text("Sign in to create your voting guide")
+                Text("Sign in to manage your candidate selections")
                     .foregroundStyle(.secondary)
 
                 VStack(spacing: 15) {
