@@ -126,15 +126,18 @@ class AuthViewModel: ObservableObject {
         }
     }
 
-    func logout() {
+    /// The single logout path (Profile button and session expiry both use it).
+    /// `reason` is shown on the login screen, e.g. when the session expired.
+    func logout(reason: String? = nil) {
         TokenManager.shared.deleteToken()
+        MunicipalityManager.shared.resetForLogout()
 
         isLoggedIn = false
         email = ""
         password = ""
         name = ""
         confirmPassword = ""
-        errorMessage = ""
+        errorMessage = reason ?? ""
         registrationSuccessful = false
         loggedInName = ""
         loggedInEmail = ""

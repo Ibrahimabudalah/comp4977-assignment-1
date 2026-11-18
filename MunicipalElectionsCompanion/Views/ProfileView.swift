@@ -126,7 +126,6 @@ struct ProfileView: View {
                 // Logout Action
                 Section {
                     Button(role: .destructive) {
-                        municipalityManager.resetForLogout()
                         viewModel.logout()
                     } label: {
                         Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")

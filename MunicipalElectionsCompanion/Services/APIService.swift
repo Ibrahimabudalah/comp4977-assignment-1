@@ -22,7 +22,7 @@ enum APIError: LocalizedError {
         case .invalidResponse:
             return "Invalid server response."
         case .unauthorized:
-            return "You are not authorized."
+            return "Your session has expired. Please log in again."
         case .serverError(let code):
             return "Server error: \(code)"
         case .decodingError:
