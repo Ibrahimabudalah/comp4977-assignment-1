@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MunicipalElectionsManagementSystem.Data;
 using MunicipalElectionsManagementSystem.Dtos;
@@ -18,17 +19,13 @@ public class CandidatesController : ControllerBase
     }
 
     //GET /api/candidates?municipalityId=&positionId=
+    //municipalityId is required (400 without it) so one city's data never leaks into another's
     [HttpGet]
     public async Task<ActionResult<List<CandidateDto>>> GetAll(
-        int? municipalityId, int? positionId)
+        [BindRequired] int municipalityId, int? positionId)
     {
-        var candidates = WithPosition();
-
-        if (municipalityId.HasValue)
-        {
-            candidates = candidates.Where(c =>
-                c.Position.MunicipalityId == municipalityId);
-        }
+        var candidates = WithPosition()
+            .Where(c => c.Position.MunicipalityId == municipalityId);
 
         if (positionId.HasValue)
         {
@@ -38,11 +35,13 @@ public class CandidatesController : ControllerBase
         return await ToDtosAsync(candidates);
     }
 
-    //GET /api/candidates/search?name=
+    //GET /api/candidates/search?municipalityId=&name=
     [HttpGet("search")]
-    public async Task<ActionResult<List<CandidateDto>>> Search(string? name)
+    public async Task<ActionResult<List<CandidateDto>>> Search(
+        [BindRequired] int municipalityId, string? name)
     {
-        var candidates = WithPosition();
+        var candidates = WithPosition()
+            .Where(c => c.Position.MunicipalityId == municipalityId);
 
         //LIKE is case-insensitive in SQLite; a blank name returns everyone, like the list
         if (!string.IsNullOrWhiteSpace(name))

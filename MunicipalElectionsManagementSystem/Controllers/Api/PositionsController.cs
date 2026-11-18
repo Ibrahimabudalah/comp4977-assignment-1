@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MunicipalElectionsManagementSystem.Data;
 using MunicipalElectionsManagementSystem.Dtos;
@@ -17,20 +18,14 @@ public class PositionsController : ControllerBase
     }
 
     //GET /api/positions?municipalityId=
+    //municipalityId is required (400 without it) so one city's data never leaks into another's
     [HttpGet]
-    public async Task<ActionResult<List<PositionDto>>> GetAll(int? municipalityId)
+    public async Task<ActionResult<List<PositionDto>>> GetAll([BindRequired] int municipalityId)
     {
-        var positions = _context.Positions
+        var result = await _context.Positions
             .AsNoTracking()
             .Include(p => p.Municipality)
-            .AsQueryable();
-
-        if (municipalityId.HasValue)
-        {
-            positions = positions.Where(p => p.MunicipalityId == municipalityId);
-        }
-
-        var result = await positions
+            .Where(p => p.MunicipalityId == municipalityId)
             .OrderBy(p => p.Municipality.Name)
             .ThenBy(p => p.Name)
             .ToListAsync();

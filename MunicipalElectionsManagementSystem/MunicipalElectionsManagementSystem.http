@@ -51,20 +51,29 @@ GET {{host}}/api/municipalities
 ### one municipality, with its positions: 200; unknown id gives 404
 GET {{host}}/api/municipalities/1
 
-### positions, optionally filtered by municipality
+### positions for one municipality (municipalityId is required)
 GET {{host}}/api/positions?municipalityId=1
+
+### positions without municipalityId: 400
+GET {{host}}/api/positions
 
 ### one position: 200; unknown id gives 404
 GET {{host}}/api/positions/1
 
 
-### candidates, optionally filtered by municipality and position
+### candidates for one municipality, optionally narrowed by position (municipalityId is required)
 GET {{host}}/api/candidates?municipalityId=1&positionId=2
+
+### candidates without municipalityId: 400
+GET {{host}}/api/candidates
 
 ### one candidate: 200; unknown id gives 404
 GET {{host}}/api/candidates/1
 
 ### search by name, ignoring case: no match gives []
+GET {{host}}/api/candidates/search?municipalityId=1&name=alex
+
+### search without municipalityId: 400
 GET {{host}}/api/candidates/search?name=alex
 
 
