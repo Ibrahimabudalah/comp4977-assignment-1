@@ -32,7 +32,7 @@ struct ContentView: View {
 
     @State private var showingFirstTimeMunicipalitySheet = false
     @State private var selectedTab: NavigationTab? = .candidates
-    @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
 
     private var isIPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad

@@ -10,7 +10,6 @@ import SwiftUI
 struct CandidateListView: View {
     @StateObject private var viewModel = CandidateViewModel()
     @ObservedObject var municipalityManager = MunicipalityManager.shared
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     @State private var showingMunicipalityPicker = false
@@ -28,21 +27,12 @@ struct CandidateListView: View {
         isIPad || isPhoneLandscape
     }
 
-    // Dynamic grid columns based on device & orientation
+    // Dynamic grid columns based on device & orientation.
+    // iPad uses an adaptive grid so the column count follows the width actually available
+    // (with the sidebar open or closed, either orientation, any iPad size) instead of a fixed count.
     private var gridColumns: [GridItem] {
         if isIPad {
-            if horizontalSizeClass == .regular && verticalSizeClass == .regular {
-                // Check if wider width
-                return [
-                    GridItem(.flexible(), spacing: 16),
-                    GridItem(.flexible(), spacing: 16),
-                    GridItem(.flexible(), spacing: 16)
-                ]
-            }
-            return [
-                GridItem(.flexible(), spacing: 16),
-                GridItem(.flexible(), spacing: 16)
-            ]
+            return [GridItem(.adaptive(minimum: 260), spacing: 16)]
         } else if isPhoneLandscape {
             return [
                 GridItem(.flexible(), spacing: 12),
