@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ProfileView: View {
     @ObservedObject var viewModel: AuthViewModel
-    @EnvironmentObject var votingGuide: VotingGuideViewModel
     @EnvironmentObject var selectionsViewModel: CandidateSelectionsViewModel
     @ObservedObject var municipalityManager = MunicipalityManager.shared
 
@@ -127,7 +126,6 @@ struct ProfileView: View {
                 // Logout Action
                 Section {
                     Button(role: .destructive) {
-                        votingGuide.clearVotingGuide()
                         municipalityManager.resetForLogout()
                         viewModel.logout()
                     } label: {
@@ -148,6 +146,5 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView(viewModel: AuthViewModel())
-        .environmentObject(VotingGuideViewModel())
         .environmentObject(CandidateSelectionsViewModel())
 }

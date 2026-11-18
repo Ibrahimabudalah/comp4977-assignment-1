@@ -27,7 +27,6 @@ enum NavigationTab: String, Hashable, CaseIterable, Identifiable {
 
 struct ContentView: View {
     @ObservedObject var authViewModel: AuthViewModel
-    @EnvironmentObject var votingGuide: VotingGuideViewModel
     @EnvironmentObject var selectionsViewModel: CandidateSelectionsViewModel
     @ObservedObject var municipalityManager = MunicipalityManager.shared
 
@@ -106,7 +105,6 @@ struct ContentView: View {
                 }
             }
         }
-        .environmentObject(votingGuide)
         .environmentObject(selectionsViewModel)
         .sheet(isPresented: $showingFirstTimeMunicipalitySheet) {
             MunicipalitySelectionView(isMandatory: true)
@@ -141,6 +139,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView(authViewModel: AuthViewModel())
-        .environmentObject(VotingGuideViewModel())
         .environmentObject(CandidateSelectionsViewModel())
 }
