@@ -9,7 +9,7 @@ import SwiftUI
 
 enum NavigationTab: String, Hashable, CaseIterable, Identifiable {
     case candidates = "Candidates"
-    case municipalities = "Municipalities"
+    case myCity = "My City"
     case selections = "My Selections"
     case profile = "Profile"
 
@@ -18,7 +18,7 @@ enum NavigationTab: String, Hashable, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .candidates: return "person.3"
-        case .municipalities: return "building.2"
+        case .myCity: return "building.2"
         case .selections: return "checkmark.seal"
         case .profile: return "person.crop.circle"
         }
@@ -88,9 +88,9 @@ struct ContentView: View {
                         Label("Candidates", systemImage: "person.3")
                     }
 
-                    MunicipalitiesView()
+                    MyCityView()
                         .tabItem {
-                            Label("Municipalities", systemImage: "building.2")
+                            Label("My City", systemImage: "building.2")
                         }
 
                     CandidateSelectionsView()
@@ -127,8 +127,8 @@ struct ContentView: View {
             NavigationStack {
                 CandidateListView()
             }
-        case .municipalities:
-            MunicipalitiesView()
+        case .myCity:
+            MyCityView()
         case .selections:
             CandidateSelectionsView()
         case .profile:
