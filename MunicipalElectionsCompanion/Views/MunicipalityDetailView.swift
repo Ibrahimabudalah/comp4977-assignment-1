@@ -98,13 +98,16 @@ struct MunicipalityDetailView: View {
     private func loadPositions() async {
         isLoading = true
         errorMessage = ""
-        defer { isLoading = false }
+        defer { if !Task.isCancelled { isLoading = false } }
 
         do {
-            positions = try await APIService.shared.get(
+            let loaded: [Position] = try await APIService.shared.get(
                 "/api/positions?municipalityId=\(municipality.municipalityId)"
             )
+            guard !Task.isCancelled else { return }
+            positions = loaded
         } catch {
+            guard !Task.isCancelled else { return }
             errorMessage = "Failed to load positions."
             print("Positions API error: \(error.localizedDescription)")
         }

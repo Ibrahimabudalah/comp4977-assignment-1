@@ -176,17 +176,13 @@ struct CandidateListView: View {
         .sheet(isPresented: $showingMunicipalityPicker) {
             MunicipalitySelectionView(isMandatory: false)
         }
-        .onChange(of: municipalityManager.selectedMunicipality?.municipalityId) {
-            Task {
-                await reloadData()
-            }
-        }
         .overlay {
             if municipalityManager.selectedMunicipality != nil && !viewModel.isLoading && viewModel.filteredCandidates.isEmpty {
                 ContentUnavailableView.search(text: viewModel.searchText)
             }
         }
-        .task {
+        // Runs on appear and again whenever the city changes; a newer load cancels the stale one.
+        .task(id: municipalityManager.selectedMunicipality?.municipalityId) {
             await reloadData()
         }
     }

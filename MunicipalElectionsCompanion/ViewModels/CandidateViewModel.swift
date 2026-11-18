@@ -20,6 +20,11 @@ class CandidateViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage = ""
 
+    /// City the current lists belong to; lets us clear them (and the office filter) when it changes.
+    private var loadedMunicipalityId: Int?
+    /// Bumped per load so a superseded load can't overwrite the newer one's results or spinner.
+    private var loadGeneration = 0
+
     var filteredCandidates: [Candidate] {
         candidates.filter { candidate in
             let matchesSearch = searchText.isEmpty ||
@@ -36,15 +41,24 @@ class CandidateViewModel: ObservableObject {
     /// nothing is loaded, so data from other cities can never reach the UI.
     func loadData(for municipalityId: Int?) async {
         guard let municipalityId, municipalityId > 0 else {
-            candidates = []
-            positions = []
+            loadGeneration += 1 // invalidate any load still in flight
+            clearLists()
+            loadedMunicipalityId = nil
             errorMessage = ""
             return
         }
 
+        // Position ids are per city, so a new city must not keep the old city's lists or office filter.
+        if municipalityId != loadedMunicipalityId {
+            clearLists()
+            loadedMunicipalityId = municipalityId
+        }
+
+        loadGeneration += 1
+        let generation = loadGeneration
         isLoading = true
         errorMessage = ""
-        defer { isLoading = false }
+        defer { if generation == loadGeneration { isLoading = false } }
 
         do {
             async let loadedMunicipalities: [Municipality] = APIService.shared.get("/api/municipalities")
@@ -52,14 +66,23 @@ class CandidateViewModel: ObservableObject {
             async let loadedCandidates: [Candidate] = APIService.shared.get("/api/candidates?municipalityId=\(municipalityId)")
 
             let (muns, pos, cands) = try await (loadedMunicipalities, loadedPositions, loadedCandidates)
+            // Drop a stale response (newer load started, or this one was cancelled) instead of showing it.
+            guard generation == loadGeneration, !Task.isCancelled else { return }
 
             self.municipalities = muns
             self.positions = pos
             self.candidates = cands
         } catch {
+            guard generation == loadGeneration, !Task.isCancelled else { return }
             errorMessage = "Failed to load candidate information. Please check your connection."
             print("Failed to load candidates: \(error.localizedDescription)")
         }
+    }
+
+    private func clearLists() {
+        candidates = []
+        positions = []
+        selectedPosition = 0
     }
 
     func positionName(for positionId: Int) -> String {
