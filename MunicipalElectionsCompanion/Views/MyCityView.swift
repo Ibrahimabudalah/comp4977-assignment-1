@@ -16,6 +16,20 @@ struct MyCityView: View {
             Group {
                 if let municipality = municipalityManager.selectedMunicipality {
                     MunicipalityDetailView(municipality: municipality)
+                } else if municipalityManager.isLoading {
+                    ProgressView("Loading your city...")
+                } else if !municipalityManager.errorMessage.isEmpty {
+                    // The user may have chosen a city already; the list just failed to load, so offer a retry
+                    ContentUnavailableView {
+                        Label("Couldn't Load Your City", systemImage: "wifi.exclamationmark")
+                    } description: {
+                        Text(municipalityManager.errorMessage + " Check your connection and try again.")
+                    } actions: {
+                        Button("Try Again") {
+                            Task { await municipalityManager.loadAvailableMunicipalities() }
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 } else {
                     ContentUnavailableView {
                         Label("No City Selected", systemImage: "building.2")
@@ -32,7 +46,7 @@ struct MyCityView: View {
             .toolbar {
                 if municipalityManager.selectedMunicipality != nil {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Change City", systemImage: "arrow.triangle.2.circlepath") {
+                        Button("Change City", systemImage: "building.2") {
                             showingMunicipalityPicker = true
                         }
                     }
