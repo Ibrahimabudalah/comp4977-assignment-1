@@ -149,7 +149,21 @@ struct CandidateListView: View {
         .refreshable {
             await reloadData()
         }
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            // Spec Part 3 example: app name with the active city beneath it
+            ToolbarItem(placement: .principal) {
+                VStack(spacing: 0) {
+                    Text("Municipal Elections Companion")
+                        .font(.headline)
+                    if let city = municipalityManager.selectedMunicipality?.name {
+                        Text("City: \(city)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .accessibilityElement(children: .combine)
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingMunicipalityPicker = true
