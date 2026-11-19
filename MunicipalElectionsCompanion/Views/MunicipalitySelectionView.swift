@@ -7,6 +7,8 @@ struct MunicipalitySelectionView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedId: Int?
+    @State private var isSaving = false
+    @State private var saveError: String?
 
     var body: some View {
         NavigationStack {
@@ -88,19 +90,35 @@ struct MunicipalitySelectionView: View {
                 // Confirm Selection Button
                 VStack(spacing: 10) {
                     Button {
-                        if let selectedId,
-                           let chosen = municipalityManager.availableMunicipalities.first(where: { $0.municipalityId == selectedId }) {
-                            municipalityManager.selectMunicipality(chosen)
-                            dismiss()
+                        guard let selectedId,
+                              let chosen = municipalityManager.availableMunicipalities.first(where: { $0.municipalityId == selectedId })
+                        else { return }
+
+                        isSaving = true
+                        Task {
+                            do {
+                                try await municipalityManager.selectMunicipality(chosen)
+                                dismiss()
+                            } catch {
+                                // Not saved to Firebase, so the previous city stays selected
+                                saveError = FirebaseService.message(for: error)
+                            }
+                            isSaving = false
                         }
                     } label: {
-                        Text(isMandatory ? "Confirm & Continue" : "Save Selection")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                        Group {
+                            if isSaving {
+                                ProgressView()
+                            } else {
+                                Text(isMandatory ? "Confirm & Continue" : "Save Selection")
+                            }
+                        }
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(selectedId == nil)
+                    .disabled(selectedId == nil || isSaving)
                 }
                 .padding()
             }
@@ -115,6 +133,14 @@ struct MunicipalitySelectionView: View {
                 }
             }
             .interactiveDismissDisabled(isMandatory)
+            .alert(
+                "Couldn't Save Municipality",
+                isPresented: Binding(get: { saveError != nil }, set: { if !$0 { saveError = nil } })
+            ) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(saveError ?? "")
+            }
             .task {
                 if municipalityManager.availableMunicipalities.isEmpty {
                     await municipalityManager.loadAvailableMunicipalities()

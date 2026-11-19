@@ -119,10 +119,10 @@ struct ContentView: View {
             MunicipalitySelectionView(isMandatory: true)
         }
         .task {
-            // Restore user's municipality preference
-            municipalityManager.setUserEmail(authViewModel.loggedInEmail)
-            await municipalityManager.loadAvailableMunicipalities()
-            if !municipalityManager.hasSelectedMunicipality {
+            // Load the user's saved municipality from Firestore, then the city list. The picker is only
+            // forced once the profile was actually read, so a returning user never sees it flash up.
+            await municipalityManager.restore(forEmail: authViewModel.loggedInEmail)
+            if municipalityManager.needsInitialSelection {
                 showingFirstTimeMunicipalitySheet = true
             }
         }

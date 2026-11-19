@@ -26,7 +26,7 @@ struct MyCityView: View {
                         Text(municipalityManager.errorMessage + " Check your connection and try again.")
                     } actions: {
                         Button("Try Again") {
-                            Task { await municipalityManager.loadAvailableMunicipalities() }
+                            Task { await municipalityManager.restore() }
                         }
                         .buttonStyle(.borderedProminent)
                     }
