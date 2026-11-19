@@ -60,6 +60,18 @@ class AuthViewModel: ObservableObject {
             
             print("User profile loaded successfully")
 
+            // Firestore's security rules need a Firebase session, so mirror this login there with the same
+            // credentials. Own handler so a cloud-storage failure isn't reported as a bad password.
+            do {
+                try await FirebaseService.shared.signIn(email: user.email, password: password)
+            } catch {
+                TokenManager.shared.deleteToken()
+                errorMessage = (error as? FirebaseServiceError)?.errorDescription
+                    ?? "Signed in, but couldn't connect to cloud storage. Please try again."
+                print("Firebase sign-in error: \(error.localizedDescription)")
+                return
+            }
+
             loggedInName = user.name
             loggedInEmail = user.email
             password = ""
@@ -130,6 +142,7 @@ class AuthViewModel: ObservableObject {
     /// `reason` is shown on the login screen, e.g. when the session expired.
     func logout(reason: String? = nil) {
         TokenManager.shared.deleteToken()
+        FirebaseService.shared.signOut()
         MunicipalityManager.shared.resetForLogout()
 
         isLoggedIn = false
