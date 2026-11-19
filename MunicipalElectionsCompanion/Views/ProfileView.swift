@@ -93,17 +93,11 @@ struct ProfileView: View {
                 }
 
                 Section("Candidate Selections") {
+                    // Selections are scoped to the selected municipality, so this counts that city's only
                     LabeledContent("Total Saved Selections") {
                         Text("\(selectionsViewModel.selections.count)")
                             .bold()
                             .foregroundStyle(.blue)
-                    }
-
-                    if let municipality = municipalityManager.selectedMunicipality {
-                        LabeledContent("Selections for \(municipality.name)") {
-                            Text("\(selectionsViewModel.filteredSelections(for: municipality.name).count)")
-                                .bold()
-                        }
                     }
 
                     LabeledContent("Last Synchronized") {
@@ -135,9 +129,6 @@ struct ProfileView: View {
             .navigationTitle("Profile")
             .sheet(isPresented: $showingMunicipalitySheet) {
                 MunicipalitySelectionView(isMandatory: false)
-            }
-            .task {
-                selectionsViewModel.setUserEmail(viewModel.loggedInEmail)
             }
         }
     }

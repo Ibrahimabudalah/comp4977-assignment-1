@@ -18,8 +18,9 @@ struct CandidateDetailView: View {
     @State private var showingNotesSheet = false
     @State private var notesDraft = ""
     @State private var showingDeleteAlert = false
-    @State private var quotaErrorMessage: String? = nil
-    @State private var showingQuotaAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var showingAlert = false
 
     // Determines current screen space
     private var isWideLayout: Bool {
@@ -66,10 +67,10 @@ struct CandidateDetailView: View {
         }
         .navigationTitle("Candidate Details")
         .navigationBarTitleDisplayMode(.inline)
-        .alert("Cannot Add Candidate", isPresented: $showingQuotaAlert) {
+        .alert(alertTitle, isPresented: $showingAlert) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(quotaErrorMessage ?? "You have reached the maximum allowed candidates for this position.")
+            Text(alertMessage)
         }
         .confirmationDialog(
             "Delete Selection",
@@ -78,8 +79,11 @@ struct CandidateDetailView: View {
         ) {
             Button("Remove \(candidate.name)", role: .destructive) {
                 if let selection = currentSelection {
-                    withAnimation {
-                        _ = selectionsViewModel.deleteSelection(selectionId: selection.id)
+                    Task {
+                        report(
+                            await selectionsViewModel.deleteSelection(selectionId: selection.id),
+                            failureTitle: "Couldn't Remove Selection"
+                        )
                     }
                 }
             }
@@ -94,22 +98,35 @@ struct CandidateDetailView: View {
                 photoUrl: candidate.photoUrl,
                 notes: $notesDraft
             ) { newNotes in
-                if isSaved {
-                    if let selection = currentSelection {
-                        _ = selectionsViewModel.updateSelection(
-                            selectionId: selection.id,
-                            notes: newNotes
+                Task {
+                    if isSaved {
+                        if let selection = currentSelection {
+                            report(
+                                await selectionsViewModel.updateSelection(selectionId: selection.id, notes: newNotes),
+                                failureTitle: "Couldn't Save Notes"
+                            )
+                        }
+                    } else {
+                        report(
+                            await selectionsViewModel.createSelection(
+                                candidate: candidate,
+                                notes: newNotes,
+                                availablePositions: availablePositions
+                            ),
+                            failureTitle: "Couldn't Add Candidate"
                         )
                     }
-                } else {
-                    _ = selectionsViewModel.createSelection(
-                        candidate: candidate,
-                        notes: newNotes,
-                        availablePositions: availablePositions
-                    )
                 }
             }
         }
+    }
+
+    /// Shows the outcome of a write: a failure, or the "saved offline, will sync" notice.
+    private func report(_ result: CandidateSelectionsViewModel.ActionResult, failureTitle: String) {
+        guard let message = result.message else { return }
+        alertTitle = result.success ? "Saved Offline" : failureTitle
+        alertMessage = message
+        showingAlert = true
     }
 
 
@@ -181,8 +198,10 @@ struct CandidateDetailView: View {
                         )
 
                         if !validation.canAdd {
-                            quotaErrorMessage = validation.message
-                            showingQuotaAlert = true
+                            alertTitle = "Cannot Add Candidate"
+                            alertMessage = validation.message
+                                ?? "You have reached the maximum allowed candidates for this position."
+                            showingAlert = true
                         } else {
                             notesDraft = ""
                             showingNotesSheet = true

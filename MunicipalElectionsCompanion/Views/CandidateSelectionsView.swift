@@ -12,13 +12,16 @@ struct CandidateSelectionsView: View {
     @State private var selectionToDelete: CandidateSelection?
     @State private var showingDeleteConfirmation = false
     @State private var editingNotesDraft = ""
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var showingAlert = false
 
     private var activeMunicipalityName: String? {
         municipalityManager.selectedMunicipality?.name
     }
 
     private var displayedSelections: [CandidateSelection] {
-        selectionsViewModel.filteredSelections(for: activeMunicipalityName)
+        selectionsViewModel.selections
     }
 
     private var isIPad: Bool {
@@ -99,6 +102,17 @@ struct CandidateSelectionsView: View {
                 }
             }
             .navigationTitle("My Selections")
+            .safeAreaInset(edge: .top) {
+                if let message = selectionsViewModel.errorMessage {
+                    Text(message)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(8)
+                        .background(.bar)
+                }
+            }
             .refreshable {
                 await selectionsViewModel.loadSelections()
             }
@@ -109,8 +123,11 @@ struct CandidateSelectionsView: View {
                 presenting: selectionToDelete
             ) { selection in
                 Button("Remove \(selection.candidateName)", role: .destructive) {
-                    withAnimation {
-                        _ = selectionsViewModel.deleteSelection(selectionId: selection.id)
+                    Task {
+                        report(
+                            await selectionsViewModel.deleteSelection(selectionId: selection.id),
+                            failureTitle: "Couldn't Remove Selection"
+                        )
                     }
                 }
                 Button("Cancel", role: .cancel) {}
@@ -124,16 +141,28 @@ struct CandidateSelectionsView: View {
                     photoUrl: selection.photoUrl,
                     notes: $editingNotesDraft
                 ) { newNotes in
-                    _ = selectionsViewModel.updateSelection(
-                        selectionId: selection.id,
-                        notes: newNotes
-                    )
+                    Task {
+                        report(
+                            await selectionsViewModel.updateSelection(selectionId: selection.id, notes: newNotes),
+                            failureTitle: "Couldn't Save Notes"
+                        )
+                    }
                 }
             }
-            .task {
-                await selectionsViewModel.loadSelections()
+            .alert(alertTitle, isPresented: $showingAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(alertMessage)
             }
         }
+    }
+
+    /// Shows the outcome of a write: a failure, or the "saved offline, will sync" notice.
+    private func report(_ result: CandidateSelectionsViewModel.ActionResult, failureTitle: String) {
+        guard let message = result.message else { return }
+        alertTitle = result.success ? "Saved Offline" : failureTitle
+        alertMessage = message
+        showingAlert = true
     }
 
     // Adaptive card for iPad & iPhone Landscape

@@ -82,14 +82,15 @@ final class FirebaseService {
 
     // MARK: - Candidate selections
 
-    /// Live updates for one user's selections in one municipality. Call `remove()` on the result to stop.
-    /// `onChange` runs on the main actor (Firestore delivers callbacks on the main queue).
+    /// Live updates for one user's selections in one municipality. Returns a function that stops the
+    /// listener (so callers never need to import Firestore). `onChange` runs on the main actor
+    /// (Firestore delivers callbacks on the main queue).
     func listenToSelections(
         email: String,
         municipalityId: Int,
         onChange: @escaping @MainActor (Result<SelectionsSnapshot, Error>) -> Void
-    ) -> ListenerRegistration {
-        selectionsQuery(email: email, municipalityId: municipalityId).addSnapshotListener { snapshot, error in
+    ) -> () -> Void {
+        let registration = selectionsQuery(email: email, municipalityId: municipalityId).addSnapshotListener { snapshot, error in
             MainActor.assumeIsolated {
                 if let snapshot {
                     onChange(.success(Self.decode(snapshot)))
@@ -98,6 +99,7 @@ final class FirebaseService {
                 }
             }
         }
+        return { registration.remove() }
     }
 
     /// One-shot read straight from the server (pull to refresh). Throws when offline.

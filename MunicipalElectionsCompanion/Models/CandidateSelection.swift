@@ -13,6 +13,8 @@ struct CandidateSelection: Identifiable, Codable, Equatable {
     let candidateId: Int
     let candidateName: String
     let positionName: String
+    /// The municipality identifier the spec requires on every selection; Firestore queries filter on it.
+    let municipalityId: Int
     let municipalityName: String
     let photoUrl: String?
     var notes: String
@@ -25,6 +27,7 @@ struct CandidateSelection: Identifiable, Codable, Equatable {
         candidateId: Int,
         candidateName: String,
         positionName: String,
+        municipalityId: Int,
         municipalityName: String,
         photoUrl: String? = nil,
         notes: String = "",
@@ -36,6 +39,7 @@ struct CandidateSelection: Identifiable, Codable, Equatable {
         self.candidateId = candidateId
         self.candidateName = candidateName
         self.positionName = positionName
+        self.municipalityId = municipalityId
         self.municipalityName = municipalityName
         self.photoUrl = photoUrl
         self.notes = notes

@@ -106,13 +106,21 @@ struct ContentView: View {
             }
         }
         .environmentObject(selectionsViewModel)
+        // Selections follow the selected municipality: a new city swaps the listener, so the previous
+        // city's selections disappear immediately (spec Part 3)
+        .onChange(of: municipalityManager.selectedMunicipality?.municipalityId, initial: true) { _, cityId in
+            if let cityId {
+                selectionsViewModel.start(email: authViewModel.loggedInEmail, municipalityId: cityId)
+            } else {
+                selectionsViewModel.stop()
+            }
+        }
         .sheet(isPresented: $showingFirstTimeMunicipalitySheet) {
             MunicipalitySelectionView(isMandatory: true)
         }
         .task {
-            // Restore user's municipality preference and selections
+            // Restore user's municipality preference
             municipalityManager.setUserEmail(authViewModel.loggedInEmail)
-            selectionsViewModel.setUserEmail(authViewModel.loggedInEmail)
             await municipalityManager.loadAvailableMunicipalities()
             if !municipalityManager.hasSelectedMunicipality {
                 showingFirstTimeMunicipalitySheet = true

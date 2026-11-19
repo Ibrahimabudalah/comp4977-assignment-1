@@ -22,6 +22,10 @@ struct MunicipalElectionsCompanionApp: App {
                     LoginView(viewModel: authViewModel)
                 }
             }
+            // Drop the live Firestore listener and any cached selections when the user logs out
+            .onChange(of: authViewModel.isLoggedIn) { _, isLoggedIn in
+                if !isLoggedIn { selectionsViewModel.stop() }
+            }
             // The login lasts 60 minutes; if it ran out while the app was in the background, sign out.
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active, authViewModel.isLoggedIn, TokenManager.shared.isTokenExpired() {
